@@ -1,0 +1,3 @@
+jwt:
+  secret: dGVzdC1vbmx5LXNlY3JldC1uYW8tdXNhci1lbS1wcm9kdWNhbw==
+  expiration-minutes: 60
