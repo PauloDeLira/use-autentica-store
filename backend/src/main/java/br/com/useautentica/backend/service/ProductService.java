@@ -71,7 +71,7 @@ public class ProductService {
         productRepository.delete(findByIdOrThrow(id));
     }
 
-    private Product findByIdOrThrow(UUID id) {
+    public Product findByIdOrThrow(UUID id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND", "Produto não encontrado"));
     }
