@@ -47,10 +47,12 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Flyway -->
+        <!-- Flyway (Spring Boot 4: o autoconfigure do Flyway foi extraído para este starter,
+             que já traz flyway-core como dependência transitiva; o suporte a PostgreSQL
+             precisa ser adicionado à parte) -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
