@@ -25,3 +25,12 @@ spring:
 
 server:
   port: ${APP_PORT:8080}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-minutes: ${JWT_EXPIRATION_MINUTES:1440}
+
+admin:
+  seed:
+    email: ${ADMIN_EMAIL:admin@useautentica.com}
+    password: ${ADMIN_PASSWORD:admin123}
