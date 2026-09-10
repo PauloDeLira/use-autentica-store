@@ -1,9 +1,7 @@
 package br.com.useautentica.backend.exception;
 
 /**
- * Lançada quando uma operação resultaria em estoque negativo ou
- * inconsistente. Estrutura preparada agora; uso efetivo começa na
- * Sprint 05 (Variações e estoque).
+ * Lançada quando uma operação resultaria em estoque negativo ou inconsistente.
  */
 public class InvalidStockOperationException extends RuntimeException {
 

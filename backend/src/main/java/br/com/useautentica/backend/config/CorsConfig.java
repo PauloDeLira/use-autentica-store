@@ -6,11 +6,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Configuração de CORS para permitir que o frontend (React, rodando em outra
- * porta durante o desenvolvimento) acesse a API.
- *
- * A lista de origens permitidas deve ser revisada na Sprint 10 (revisão de
- * segurança) antes de qualquer deploy em produção.
+ * Libera o front-end local pra consumir a API. Revisar as origens permitidas
+ * antes de qualquer deploy em produção.
  */
 @Configuration
 public class CorsConfig {

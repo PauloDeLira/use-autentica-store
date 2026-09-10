@@ -7,9 +7,8 @@ import java.time.Instant;
 import java.util.Map;
 
 /**
- * Endpoint simples para validar que a API está no ar.
- * Útil na Sprint 02 para confirmar que o backend subiu corretamente e está
- * conectado ao banco (se a app subir, o Flyway já validou a conexão).
+ * Se esse endpoint responder, a conexão com o banco e as migrations já
+ * passaram na inicialização.
  */
 @RestController
 public class HealthController {

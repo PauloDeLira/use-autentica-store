@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 
 /**
- * Tratamento global de exceções da API, garantindo que todo erro retornado
- * ao cliente siga o mesmo formato ({@link ErrorResponse}), independentemente
- * de onde a exceção foi lançada.
+ * Garante que toda exceção vire um {@link ErrorResponse} no mesmo formato.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
