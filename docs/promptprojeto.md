@@ -1570,6 +1570,79 @@ frontend, sem regra de negócio no backend) — `tsc` e `oxlint` limpos.
 
 ---
 
+### Sprint 09 — Frontend administrativo ✅ Concluída e validada (2026-09-11)
+
+Adicionado em `frontend/`:
+- `auth/session.ts` — guarda a sessão (`token`, `tokenType`, `name`, `email`,
+  `role`) em `localStorage`; `auth/AuthContext.tsx` expõe `login`/`logout`/
+  `session` via React Context; `admin/ProtectedRoute.tsx` redireciona pra
+  `/admin/login` quando não há sessão.
+- `api/client.ts` ganhou `apiPost`/`apiPut`/`apiPatch`/`apiDelete`/
+  `apiUpload`, todos anexando `Authorization: Bearer` quando `auth: true`
+  (padrão pras rotas admin) — em 401 limpa a sessão e redireciona pro
+  login automaticamente.
+- `api/admin/*.ts` (products, categories, sizes, colors, inventory,
+  variants, images) — um módulo por recurso administrativo.
+- `admin/AdminLayout.tsx` — sidebar com navegação (Dashboard, Produtos,
+  Categorias, Estoque) e botão de logout.
+- `admin/pages/Login.tsx`, `Dashboard.tsx`, `Categories.tsx`,
+  `ProductsList.tsx`, `ProductForm.tsx`, `Inventory.tsx`.
+- `admin/components/VariantManager.tsx` e `ImageManager.tsx` — usados
+  dentro do `ProductForm` (só aparecem depois do produto já criado, já
+  que variação/imagem exigem um `productId`).
+
+**Lacuna de API descoberta e corrigida nesta sessão (igual ao padrão da
+Sprint 07):** não existia nenhum jeito de listar/ver produtos inativos
+pela API — só o público `GET /api/products` (só ativos). Sem isso, a tela
+"Produtos" do admin não conseguia mostrar nem editar produtos desativados.
+Adicionado `GET /api/admin/products` (todos os produtos, reaproveitando o
+`ProductSummaryResponse` da Sprint 07) e `GET /api/admin/products/{id}`
+(qualquer produto, ativo ou não) em `ProductAdminController` +
+`ProductService` (`findAllForAdmin`, `findByIdForAdmin`; a lógica de
+enriquecimento com imagem de capa/disponibilidade foi extraída pra um
+método privado `toSummaries` compartilhado com o catálogo público).
+`GET /api/admin/inventory` (Sprint 05) já listava todas as variações de
+todos os produtos, então os números de estoque do dashboard não precisaram
+de nenhuma mudança no backend.
+
+**Decisões técnicas (trade-offs apresentados e escolhidos nesta sessão):**
+- **Token em `localStorage`**, lido por um Context no boot da aplicação —
+  simples, sem refresh token (mesma decisão da Sprint 03: só access token).
+- **Formulários com `useState` simples**, sem `react-hook-form`/`zod` — a
+  validação de verdade já é o Bean Validation do backend; os formulários
+  admin não são complexos o bastante pra justificar a dependência.
+- **Sem tela própria de tamanhos/cores** — o doc original não lista essa
+  tela na Sprint 09, mas sem cadastrar tamanho/cor não dá pra criar
+  variação nenhuma; resolvido cadastrando-os inline dentro do
+  `VariantManager` do próprio formulário de produto, sem inventar uma tela
+  nova fora do escopo descrito.
+- **Confirmação de exclusão via `window.confirm`** (produto e variação) —
+  suficiente para o MVP, evita construir um componente de modal só pra
+  isso.
+- **Estoque "baixo"** definido como `stockQuantity <= 5` (constante no
+  frontend, `LOW_STOCK_THRESHOLD`) — o doc pede identificar estoque baixo
+  mas não define o limiar; 5 é um valor de partida razoável, fácil de
+  ajustar depois se a proprietária achar melhor outro número.
+
+**Testes:** 3 novos no backend (2 unitários em `ProductServiceTest`
+cobrindo `findAllForAdmin`/`findByIdForAdmin`, 1 de integração em
+`ProductAdminControllerTest`) — 72 testes passando no total, `BUILD
+SUCCESS`. Sem testes automatizados novos no frontend (mesma decisão da
+Sprint 08).
+
+**Validação real:** backend rebuildado e validado rodando; frontend
+testado de ponta a ponta com Playwright (Edge) contra a API real —
+redirecionamento de rota protegida sem sessão, login, dashboard com os 4
+números, CRUD de categoria, criação de produto com redirecionamento pro
+formulário de edição, cadastro de variação, upload de imagem, alteração
+de estoque na tela de Estoque (conferida via API depois), logout e
+reproteção da rota — sem erros de console, `tsc` e `oxlint` limpos. Dados
+de teste (da validação manual e dos testes automatizados do backend, que
+ainda rodam contra o banco de dev compartilhado) limpos com `TRUNCATE` ao
+final.
+
+---
+
 ## 6. Regras de processo que devem continuar sendo seguidas
 
 (vindas do documento de especificação original, seção 18 — reforçar sempre)
@@ -1594,19 +1667,29 @@ frontend, sem regra de negócio no backend) — `tsc` e `oxlint` limpos.
 
 ## 7. Próximo passo
 
-**Sprint 09 — Frontend administrativo**, ainda não iniciada. Objetivo do
-documento original: tela de login, proteção de rotas, dashboard, listagem
-e formulário de produto, gerenciamento de categorias/variações/estoque/
-imagens, feedbacks de sucesso/erro. Entregável: "A proprietária consegue
-administrar a loja através da interface web."
+**Sprint 10 — Qualidade e documentação**, ainda não iniciada (última
+sprint do MVP). Objetivo do documento original: revisar arquitetura e
+código, melhorar tratamento de erros e validações, adicionar testes
+faltantes, configurar Testcontainers, configurar Swagger/OpenAPI, melhorar
+o README, documentar arquitetura e decisões técnicas, Docker Compose
+completo, revisar segurança/CORS/autenticação/gerenciamento de secrets.
+Entregável: "MVP completo, documentado e reproduzível."
 
-Toda a API administrativa já existe e está protegida por JWT/`ROLE_ADMIN`
-desde a Sprint 03 (login em `POST /api/auth/login`) — o frontend só
-precisa consumir o que já está pronto. É a sprint mais extensa de
-frontend até agora (várias telas), vale considerar dividir o trabalho em
-partes dentro da própria sessão (ex: login+proteção de rotas primeiro,
-depois produtos, depois categorias/estoque/imagens) em vez de tentar tudo
-de uma vez.
+Itens que já sabemos que essa sprint precisa cobrir, levantados ao longo
+das sessões anteriores:
+- **Testcontainers** — vai finalmente isolar os testes do banco de dev
+  compartilhado. Hoje toda rodada de `mvn test` deixa categorias/produtos
+  de teste no Postgres de dev (ver notas de validação das Sprints 07/08/09);
+  isso para de acontecer assim que os testes passarem a subir seu próprio
+  Postgres efêmero.
+- **Swagger/OpenAPI** — a seção 15 do doc original pede documentação
+  completa dos endpoints; ainda não foi feita em nenhuma sprint anterior.
+- **Revisar o 500 → 422 do `PRODUCT_HAS_VARIANTS`** (Sprint 07) e outros
+  pontos de tratamento de erro — bom momento para uma revisão geral do
+  `GlobalExceptionHandler`.
+- **README** — hoje só existe o gerado na Sprint 01 (planejamento); precisa
+  refletir o estado real do projeto (como rodar backend+frontend juntos,
+  variáveis de ambiente de cada um, etc).
 
 Seguir o mesmo padrão desta conversa: explicar objetivo e decisões técnicas,
 perguntar preferências quando houver mais de uma opção válida, e só então
@@ -1614,12 +1697,9 @@ gerar código.
 
 Importante: **antes do deploy real do MVP**, trocar `VITE_WHATSAPP_NUMBER`
 (hoje o número pessoal do dono do projeto, usado só para teste) pelo
-número oficial da loja — ver nota da Sprint 08.
-
-Pendência conhecida, não bloqueante: banco de dev com dados de teste
-acumulados de várias sprints (ver nota de validação da Sprint 07) — limpar
-quando o usuário aprovar o `TRUNCATE`, ou deixar para a Sprint 10
-(Testcontainers vai isolar os testes do banco de dev definitivamente).
+número oficial da loja — ver nota da Sprint 08. Essa troca não depende da
+Sprint 10, pode ser feita a qualquer momento antes de publicar o site de
+verdade.
 
 ## 8. Regras de processo combinadas ao longo das sessões
 
