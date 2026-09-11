@@ -12,11 +12,11 @@
   align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-sm);
   background-color: transparent;
   border: 1px solid var(--color-surface);
   border-radius: var(--radius-sm);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-family: inherit;
   color: inherit;
   text-align: left;

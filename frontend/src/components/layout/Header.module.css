@@ -23,7 +23,7 @@
 .nav {
   display: flex;
   gap: var(--spacing-md);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .nav a {

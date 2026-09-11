@@ -32,25 +32,27 @@
 }
 
 .body {
-  padding: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-sm);
 }
 
 .category {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-secondary);
 }
 
 .name {
-  font-size: 1.05rem;
-  margin-top: 0.2rem;
+  font-size: 1.15rem;
+  margin-top: 0.3rem;
+  line-height: 1.35;
 }
 
 .price {
   margin-top: var(--spacing-xs);
   color: var(--color-primary);
   font-weight: 600;
+  font-size: 1.05rem;
 }
 
 .unavailableBadge {
