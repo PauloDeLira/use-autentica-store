@@ -49,3 +49,7 @@ img {
 .status-message--error {
   color: #a13d3d;
 }
+
+.status-message--success {
+  color: #2f6b3a;
+}

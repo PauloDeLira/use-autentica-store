@@ -1,0 +1,62 @@
+.title {
+  font-size: 1.6rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-width: 480px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.field input,
+.field textarea,
+.field select {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.submit {
+  padding: 0.65rem;
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.section {
+  margin-top: var(--spacing-lg);
+}
+
+.sectionTitle {
+  font-size: 1.2rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--color-secondary);
+}
