@@ -6,11 +6,13 @@ import { LoadingIndicator } from "../components/common/LoadingIndicator";
 import { ErrorMessage } from "../components/common/ErrorMessage";
 import { SectionTitle } from "../components/common/SectionTitle";
 import { ProductCard } from "../components/product/ProductCard";
+import { ProductCarousel } from "../components/product/ProductCarousel";
 import logo from "../assets/logo.png";
 import logoLight from "../assets/logo-clara.png";
 import styles from "./Home.module.css";
 
-const FEATURED_COUNT = 4;
+const FEATURED_COUNT = 12;
+const CAROUSEL_THRESHOLD = 4;
 
 export function Home() {
   const categories = useAsync(() => fetchCategories(), []);
@@ -68,11 +70,15 @@ export function Home() {
           )}
           {featuredProducts.length > 0 && (
             <>
-              <div className={styles.productGrid}>
-                {featuredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              {featuredProducts.length > CAROUSEL_THRESHOLD ? (
+                <ProductCarousel products={featuredProducts} />
+              ) : (
+                <div className={styles.productGrid}>
+                  {featuredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              )}
               <div className={styles.sectionFooter}>
                 <Link to="/catalogo" className={styles.ghostLink}>
                   Ver catálogo completo
