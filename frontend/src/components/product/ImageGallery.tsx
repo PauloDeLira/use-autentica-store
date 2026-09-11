@@ -15,7 +15,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
   if (sorted.length === 0) {
     return (
       <div className={styles.placeholder}>
-        <span>use autêntica</span>
+        <span>UA</span>
       </div>
     );
   }
@@ -24,11 +24,13 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
   return (
     <div className={styles.gallery}>
-      <img
-        className={styles.main}
-        src={resolveAssetUrl(active.url)}
-        alt={active.altText ?? productName}
-      />
+      <div className={styles.mainFrame}>
+        <img
+          className={styles.main}
+          src={resolveAssetUrl(active.url)}
+          alt={active.altText ?? productName}
+        />
+      </div>
       {sorted.length > 1 && (
         <div className={styles.thumbnails}>
           {sorted.map((image, index) => (

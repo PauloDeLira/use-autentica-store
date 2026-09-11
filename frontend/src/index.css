@@ -4,14 +4,19 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   background-color: var(--color-background);
   color: var(--color-text);
   font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
@@ -20,7 +25,7 @@ h3,
 h4 {
   font-family: var(--font-heading);
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.15;
   margin: 0;
 }
 
@@ -31,6 +36,7 @@ p {
 a {
   color: inherit;
   text-decoration: none;
+  transition: color var(--transition);
 }
 
 button {
@@ -43,16 +49,27 @@ img {
   display: block;
 }
 
-.status-message {
-  text-align: center;
-  padding: var(--spacing-lg) var(--spacing-sm);
+::selection {
+  background-color: var(--color-surface);
   color: var(--color-text);
 }
 
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.status-message {
+  text-align: center;
+  padding: var(--spacing-lg) var(--spacing-sm);
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
 .status-message--error {
-  color: #a13d3d;
+  color: var(--color-danger);
 }
 
 .status-message--success {
-  color: #2f6b3a;
+  color: var(--color-success);
 }

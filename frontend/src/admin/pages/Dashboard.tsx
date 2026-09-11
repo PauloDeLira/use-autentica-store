@@ -29,7 +29,11 @@ export function Dashboard() {
 
   return (
     <div>
-      <h1 className={styles.title}>Dashboard</h1>
+      <div className={styles.header}>
+        <span className={styles.eyebrow}>Visão geral da loja</span>
+        <h1 className={styles.title}>Dashboard</h1>
+      </div>
+
       <div className={styles.grid}>
         <div className={styles.card}>
           <div className={styles.value}>{totalProdutos}</div>
@@ -39,7 +43,7 @@ export function Dashboard() {
           <div className={styles.value}>{produtosAtivos}</div>
           <div className={styles.label}>Produtos ativos</div>
         </div>
-        <div className={styles.card}>
+        <div className={`${styles.card} ${produtosSemEstoque > 0 ? styles.cardAlert : ""}`}>
           <div className={styles.value}>{produtosSemEstoque}</div>
           <div className={styles.label}>Produtos sem estoque</div>
         </div>

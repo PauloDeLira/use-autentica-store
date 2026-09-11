@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { deleteProduct, fetchAdminProducts, setProductActive } from "../../api/admin/products";
 import { useAsync } from "../../hooks/useAsync";
-import { ApiError } from "../../api/client";
+import { ApiError, resolveAssetUrl } from "../../api/client";
 import { LoadingIndicator } from "../../components/common/LoadingIndicator";
 import { ErrorMessage } from "../../components/common/ErrorMessage";
 import { formatPrice } from "../../utils/currency";
@@ -39,7 +39,10 @@ export function ProductsList() {
   return (
     <div>
       <div className={styles.header}>
-        <h1 className={styles.title}>Produtos</h1>
+        <div>
+          <span className={styles.eyebrow}>Catálogo da loja</span>
+          <h1 className={styles.title}>Produtos</h1>
+        </div>
         <Link to="/admin/produtos/novo" className={styles.newButton}>
           Novo produto
         </Link>
@@ -49,52 +52,70 @@ export function ProductsList() {
       {products.loading && <LoadingIndicator />}
       {products.error && <ErrorMessage />}
       {products.data && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Categoria</th>
-              <th>Preço</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.data.map((product) => (
-              <tr key={product.id}>
-                <td>{product.name}</td>
-                <td>{product.categoryName}</td>
-                <td>{formatPrice(product.price)}</td>
-                <td>
-                  <span className={`${styles.badge} ${product.active ? "" : styles.badgeInactive}`}>
-                    {product.active ? "Ativo" : "Inativo"}
-                  </span>
-                </td>
-                <td>
-                  <div className={styles.actions}>
-                    <Link to={`/admin/produtos/${product.id}/editar`} className={styles.linkButton}>
-                      Editar
-                    </Link>
-                    <button
-                      type="button"
-                      className={styles.linkButton}
-                      onClick={() => handleToggleActive(product.id, product.active)}
-                    >
-                      {product.active ? "Desativar" : "Ativar"}
-                    </button>
-                    <button
-                      type="button"
-                      className={`${styles.linkButton} ${styles.linkButtonDanger}`}
-                      onClick={() => handleDelete(product.id)}
-                    >
-                      Excluir
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className={styles.panel}>
+          {products.data.length === 0 ? (
+            <p className={styles.empty}>Nenhum produto cadastrado ainda.</p>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Produto</th>
+                  <th>Categoria</th>
+                  <th>Preço</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.data.map((product) => (
+                  <tr key={product.id}>
+                    <td>
+                      {product.coverImageUrl ? (
+                        <img
+                          className={styles.thumb}
+                          src={resolveAssetUrl(product.coverImageUrl)}
+                          alt={product.name}
+                        />
+                      ) : (
+                        <div className={styles.thumbPlaceholder}>UA</div>
+                      )}
+                    </td>
+                    <td className={styles.productName}>{product.name}</td>
+                    <td>{product.categoryName}</td>
+                    <td>{formatPrice(product.price)}</td>
+                    <td>
+                      <span className={`${styles.badge} ${product.active ? "" : styles.badgeInactive}`}>
+                        {product.active ? "Ativo" : "Inativo"}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.actions}>
+                        <Link to={`/admin/produtos/${product.id}/editar`} className={styles.linkButton}>
+                          Editar
+                        </Link>
+                        <button
+                          type="button"
+                          className={styles.linkButton}
+                          onClick={() => handleToggleActive(product.id, product.active)}
+                        >
+                          {product.active ? "Desativar" : "Ativar"}
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.linkButton} ${styles.linkButtonDanger}`}
+                          onClick={() => handleDelete(product.id)}
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       )}
     </div>
   );

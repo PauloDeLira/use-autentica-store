@@ -1,6 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import logo from "../assets/use-autentica-logo.png";
+import logo from "../assets/logo-clara.png";
 import styles from "./AdminLayout.module.css";
 
 export function AdminLayout() {
@@ -18,6 +18,8 @@ export function AdminLayout() {
         <Link to="/" className={styles.logo}>
           <img src={logo} alt="use autêntica — moda feminina" className={styles.logoImage} />
         </Link>
+
+        <span className={styles.sidebarLabel}>Gerenciamento</span>
         <nav className={styles.nav}>
           <NavLink to="/admin" end className={({ isActive }) => (isActive ? styles.navActive : undefined)}>
             Dashboard
@@ -35,9 +37,14 @@ export function AdminLayout() {
             ← Voltar ao site
           </Link>
         </nav>
-        <button type="button" className={styles.logoutButton} onClick={handleLogout}>
-          Sair ({session?.name})
-        </button>
+
+        <div className={styles.user}>
+          <span className={styles.userName}>{session?.name}</span>
+          <span className={styles.userRole}>Administradora</span>
+          <button type="button" className={styles.logoutButton} onClick={handleLogout}>
+            Sair
+          </button>
+        </div>
       </aside>
       <div className={styles.content}>
         <Outlet />

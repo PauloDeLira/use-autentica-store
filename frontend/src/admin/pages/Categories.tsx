@@ -69,13 +69,22 @@ export function Categories() {
 
   return (
     <div>
-      <h1 className={styles.title}>Categorias</h1>
+      <div className={styles.header}>
+        <span className={styles.eyebrow}>Organização do catálogo</span>
+        <h1 className={styles.title}>Categorias</h1>
+      </div>
 
       <div className={styles.layout}>
         <div>
           {categories.loading && <LoadingIndicator />}
           {categories.error && <ErrorMessage />}
-          {categories.data && (
+          {categories.data && categories.data.length === 0 && (
+            <div className={styles.panel}>
+              <p className={styles.empty}>Nenhuma categoria cadastrada ainda.</p>
+            </div>
+          )}
+          {categories.data && categories.data.length > 0 && (
+            <div className={styles.panel}>
             <table className={styles.table}>
               <thead>
                 <tr>
@@ -87,7 +96,7 @@ export function Categories() {
               <tbody>
                 {categories.data.map((category) => (
                   <tr key={category.id}>
-                    <td>{category.name}</td>
+                    <td className={styles.categoryName}>{category.name}</td>
                     <td>
                       <span className={`${styles.badge} ${category.active ? "" : styles.badgeInactive}`}>
                         {category.active ? "Ativa" : "Inativa"}
@@ -107,6 +116,7 @@ export function Categories() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { fetchProductById, fetchProductVariants } from "../api/products";
 import { useAsync } from "../hooks/useAsync";
 import { ApiError } from "../api/client";
@@ -25,11 +25,7 @@ export function ProductDetail() {
 
   if (product.error) {
     const notFound = product.error instanceof ApiError && product.error.status === 404;
-    return (
-      <ErrorMessage
-        message={notFound ? "Produto não encontrado." : undefined}
-      />
-    );
+    return <ErrorMessage message={notFound ? "Produto não encontrado." : undefined} />;
   }
 
   const data = product.data!;
@@ -39,17 +35,29 @@ export function ProductDetail() {
     <div className={styles.wrapper}>
       <ImageGallery images={data.images} productName={data.name} />
 
-      <div>
-        <span className={styles.category}>{data.category.name}</span>
-        <h1 className={styles.name}>{data.name}</h1>
-        <p className={styles.price}>{formatPrice(data.price)}</p>
-        {data.description && <p className={styles.description}>{data.description}</p>}
+      <div className={styles.info}>
+        <Link to="/catalogo" className={styles.breadcrumb}>
+          ← Voltar ao catálogo
+        </Link>
 
-        <h2 className={styles.sectionTitle}>Tamanhos e cores disponíveis</h2>
+        <div>
+          <span className={styles.category}>{data.category.name}</span>
+          <h1 className={styles.name}>{data.name}</h1>
+          <p className={styles.price}>{formatPrice(data.price)}</p>
+        </div>
+
+        {data.description && (
+          <>
+            <div className={styles.divider} />
+            <p className={styles.description}>{data.description}</p>
+          </>
+        )}
+
+        <h2 className={styles.sectionTitle}>Tamanhos e cores</h2>
         {variants.loading && <LoadingIndicator />}
         {variants.error && <ErrorMessage />}
         {variants.data && !hasAvailableVariant && (
-          <p className="status-message">Produto indisponível no momento.</p>
+          <p className={styles.unavailable}>Produto indisponível no momento.</p>
         )}
         {variants.data && hasAvailableVariant && (
           <VariantList

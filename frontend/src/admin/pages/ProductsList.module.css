@@ -1,53 +1,135 @@
 .header {
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: space-between;
-  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-lg);
+}
+
+.eyebrow {
+  font-size: 0.64rem;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-secondary);
 }
 
 .title {
-  font-size: 1.6rem;
+  font-size: 1.9rem;
+  font-weight: 500;
+  margin-top: 0.2rem;
 }
 
 .newButton {
-  padding: 0.6rem 1.2rem;
+  padding: 0.7rem 1.5rem;
   background-color: var(--color-primary);
   color: var(--color-background);
   border: none;
   border-radius: var(--radius-sm);
-  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.newButton:hover {
+  background-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.panel {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  background-color: var(--color-background);
 }
 
-.table th,
-.table td {
+.table th {
   text-align: left;
-  padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid var(--color-surface);
-  font-size: 0.9rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background-color: var(--color-surface-soft);
+  border-bottom: 1px solid var(--color-line);
 }
 
-.badge {
-  font-size: 0.75rem;
-  padding: 0.15rem 0.5rem;
+.table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr {
+  transition: background-color var(--transition);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-surface-soft);
+}
+
+.productName {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+}
+
+.thumb {
+  width: 42px;
+  height: 54px;
+  object-fit: cover;
   border-radius: var(--radius-sm);
   background-color: var(--color-surface);
 }
 
+.thumbPlaceholder {
+  width: 42px;
+  height: 54px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  color: rgba(139, 93, 22, 0.45);
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
 .badgeInactive {
   background-color: transparent;
-  border: 1px solid var(--color-secondary);
-  color: var(--color-secondary);
+  border: 1px solid var(--color-muted);
+  color: var(--color-muted);
 }
 
 .actions {
   display: flex;
-  gap: 0.6rem;
+  gap: var(--spacing-sm);
 }
 
 .linkButton {
@@ -55,10 +137,24 @@
   border: none;
   padding: 0;
   color: var(--color-primary);
-  font-size: 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  transition: color var(--transition);
+}
+
+.linkButton:hover {
+  color: var(--color-primary-dark);
   text-decoration: underline;
 }
 
 .linkButtonDanger {
-  color: #a13d3d;
+  color: var(--color-danger);
+}
+
+.empty {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.92rem;
 }

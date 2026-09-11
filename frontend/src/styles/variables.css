@@ -5,6 +5,13 @@
   --color-background: #f7f3ec;
   --color-text: #3b2a18;
 
+  --color-primary-dark: #6d4811;
+  --color-surface-soft: #ece3d3;
+  --color-muted: #7a6a55;
+  --color-line: rgba(139, 93, 22, 0.16);
+  --color-danger: #9c3b3b;
+  --color-success: #2f6b3a;
+
   --font-heading: "Cormorant Garamond", serif;
   --font-body: "Montserrat", sans-serif;
 
@@ -13,7 +20,36 @@
   --spacing-md: 1.5rem;
   --spacing-lg: 2.5rem;
   --spacing-xl: 4rem;
+  --spacing-2xl: 6rem;
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+
+  --container: 1180px;
+
+  --shadow-sm: 0 1px 3px rgba(59, 42, 24, 0.06);
+  --shadow-md: 0 12px 32px rgba(59, 42, 24, 0.1);
+  --shadow-lg: 0 24px 60px rgba(59, 42, 24, 0.16);
+
+  --tracking-wide: 0.08em;
+  --tracking-wider: 0.2em;
+
+  --transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Textura de linho sutil, inspirada nos fundos do manual da marca */
+  --texture-linen:
+    repeating-linear-gradient(
+      90deg,
+      rgba(139, 93, 22, 0.022) 0px,
+      rgba(139, 93, 22, 0.022) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(139, 93, 22, 0.022) 0px,
+      rgba(139, 93, 22, 0.022) 1px,
+      transparent 1px,
+      transparent 3px
+    );
 }

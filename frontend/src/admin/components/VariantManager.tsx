@@ -175,7 +175,7 @@ export function VariantManager({ productId }: VariantManagerProps) {
               onChange={(event) => setNewSizeOrder(event.target.value)}
             />
           </label>
-          <button type="submit" className={styles.addButton} disabled={savingSize}>
+          <button type="submit" className={`${styles.addButton} ${styles.secondaryButton}`} disabled={savingSize}>
             {savingSize ? "Criando..." : "Criar tamanho"}
           </button>
         </form>
@@ -199,7 +199,7 @@ export function VariantManager({ productId }: VariantManagerProps) {
               className={styles.colorPicker}
             />
           </label>
-          <button type="submit" className={styles.addButton} disabled={savingColor}>
+          <button type="submit" className={`${styles.addButton} ${styles.secondaryButton}`} disabled={savingColor}>
             {savingColor ? "Criando..." : "Criar cor"}
           </button>
         </form>

@@ -38,71 +38,83 @@ export function Inventory() {
 
   return (
     <div>
-      <h1 className={styles.title}>Estoque</h1>
+      <div className={styles.header}>
+        <span className={styles.eyebrow}>Controle por variação</span>
+        <h1 className={styles.title}>Estoque</h1>
+      </div>
 
       {error && <ErrorMessage message={error} />}
       {inventory.loading && <LoadingIndicator />}
       {inventory.error && <ErrorMessage />}
       {inventory.data && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Produto</th>
-              <th>Tamanho</th>
-              <th>Cor</th>
-              <th>Estoque</th>
-              <th>Situação</th>
-            </tr>
-          </thead>
-          <tbody>
-            {inventory.data.map((item) => {
-              const currentValue = pendingValues[item.id] ?? String(item.stockQuantity);
-              const isDirty =
-                pendingValues[item.id] !== undefined && (Number(pendingValues[item.id]) || 0) !== item.stockQuantity;
-
-              return (
-                <tr key={item.id}>
-                  <td>{item.productName}</td>
-                  <td>{item.size.name}</td>
-                  <td>
-                    <span className={styles.swatch} style={{ backgroundColor: item.color.hexCode }} />
-                    {item.color.name}
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      min={0}
-                      className={styles.stockInput}
-                      value={currentValue}
-                      onChange={(event) =>
-                        setPendingValues((prev) => ({ ...prev, [item.id]: event.target.value }))
-                      }
-                    />
-                    {isDirty && (
-                      <button
-                        type="button"
-                        className={styles.saveButton}
-                        disabled={savingId === item.id}
-                        onClick={() => handleSave(item.id)}
-                      >
-                        Salvar
-                      </button>
-                    )}
-                  </td>
-                  <td>
-                    {item.stockQuantity === 0 || !item.active ? (
-                      <span className={`${styles.badge} ${styles.badgeWarning}`}>Sem estoque</span>
-                    ) : item.stockQuantity <= LOW_STOCK_THRESHOLD ? (
-                      <span className={`${styles.badge} ${styles.badgeLow}`}>Estoque baixo</span>
-                    ) : (
-                      <span className={styles.badge}>Disponível</span>
-                    )}
-                  </td>
+        <div className={styles.panel}>
+          {inventory.data.length === 0 ? (
+            <p className={styles.empty}>Nenhuma variação cadastrada ainda.</p>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Tamanho</th>
+                  <th>Cor</th>
+                  <th>Estoque</th>
+                  <th>Situação</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {inventory.data.map((item) => {
+                  const currentValue = pendingValues[item.id] ?? String(item.stockQuantity);
+                  const isDirty =
+                    pendingValues[item.id] !== undefined &&
+                    (Number(pendingValues[item.id]) || 0) !== item.stockQuantity;
+
+                  return (
+                    <tr key={item.id}>
+                      <td className={styles.productName}>{item.productName}</td>
+                      <td className={styles.sizeCell}>{item.size.name}</td>
+                      <td>
+                        <span className={styles.swatch} style={{ backgroundColor: item.color.hexCode }} />
+                        {item.color.name}
+                      </td>
+                      <td>
+                        <div className={styles.stockCell}>
+                          <input
+                            type="number"
+                            min={0}
+                            className={styles.stockInput}
+                            value={currentValue}
+                            onChange={(event) =>
+                              setPendingValues((prev) => ({ ...prev, [item.id]: event.target.value }))
+                            }
+                          />
+                          {isDirty && (
+                            <button
+                              type="button"
+                              className={styles.saveButton}
+                              disabled={savingId === item.id}
+                              onClick={() => handleSave(item.id)}
+                            >
+                              Salvar
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        {item.stockQuantity === 0 || !item.active ? (
+                          <span className={`${styles.badge} ${styles.badgeWarning}`}>Sem estoque</span>
+                        ) : item.stockQuantity <= LOW_STOCK_THRESHOLD ? (
+                          <span className={`${styles.badge} ${styles.badgeLow}`}>Estoque baixo</span>
+                        ) : (
+                          <span className={styles.badge}>Disponível</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
       )}
     </div>
   );

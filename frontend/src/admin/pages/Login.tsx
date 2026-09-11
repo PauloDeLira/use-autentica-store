@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { ApiError } from "../../api/client";
+import logo from "../../assets/logo.png";
 import styles from "./Login.module.css";
 
 export function Login() {
@@ -33,7 +34,8 @@ export function Login() {
   return (
     <div className={styles.wrapper}>
       <form className={styles.card} onSubmit={handleSubmit}>
-        <h1 className={styles.title}>use autêntica</h1>
+        <img src={logo} alt="use autêntica — moda feminina" className={styles.logo} />
+        <p className={styles.title}>Área administrativa</p>
 
         <label className={styles.field}>
           Email
@@ -60,6 +62,10 @@ export function Login() {
         </button>
 
         {error && <p className={styles.error}>{error}</p>}
+
+        <Link to="/" className={styles.backLink}>
+          ← Voltar ao site
+        </Link>
       </form>
     </div>
   );

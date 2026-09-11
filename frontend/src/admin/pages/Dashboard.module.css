@@ -1,29 +1,59 @@
-.title {
-  font-size: 1.6rem;
+.header {
   margin-bottom: var(--spacing-lg);
+}
+
+.eyebrow {
+  font-size: 0.64rem;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.title {
+  font-size: 1.9rem;
+  font-weight: 500;
+  margin-top: 0.2rem;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: var(--spacing-md);
 }
 
 .card {
-  background-color: var(--color-surface);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-md);
   text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .value {
   font-family: var(--font-heading);
-  font-size: 2.2rem;
+  font-size: 2.8rem;
+  font-weight: 500;
+  line-height: 1;
   color: var(--color-primary);
 }
 
+.cardAlert .value {
+  color: var(--color-danger);
+}
+
 .label {
-  margin-top: 0.25rem;
-  font-size: 0.85rem;
-  color: var(--color-text);
+  margin-top: var(--spacing-xs);
+  font-size: 0.68rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-muted);
 }

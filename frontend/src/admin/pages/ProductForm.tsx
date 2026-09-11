@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { fetchCategories } from "../../api/categories";
 import { createProduct, fetchAdminProduct, updateProduct } from "../../api/admin/products";
 import { uploadImage } from "../../api/admin/images";
@@ -88,7 +88,12 @@ export function ProductForm() {
 
   return (
     <div>
-      <h1 className={styles.title}>{isEditing ? "Editar produto" : "Novo produto"}</h1>
+      <div className={styles.header}>
+        <Link to="/admin/produtos" className={styles.backLink}>
+          ← Voltar para produtos
+        </Link>
+        <h1 className={styles.title}>{isEditing ? "Editar produto" : "Novo produto"}</h1>
+      </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <label className={styles.field}>

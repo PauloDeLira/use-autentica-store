@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "../../assets/use-autentica-logo.png";
+import logo from "../../assets/logo.png";
 import styles from "./Header.module.css";
 
 export function Header() {
