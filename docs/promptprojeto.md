@@ -1503,3 +1503,66 @@ Além da seção 18 do documento original:
   atual (aconteceu na Sprint 03: um teste que assumia a ausência de
   endpoints da Sprint 04 acabou puxando uma correção de exception handler
   que não era o foco da sprint).
+
+---
+
+## 9. Identidade visual da marca (Use Autêntica)
+
+Manual de marca recebido do dono do projeto em 2026-09-10, arquivo original
+em `docs/identidade-visual/manual-marca.pdf` (versionado no Git). Usar
+sempre como referência de cores e tipografia a partir da Sprint 07
+(frontend). O resumo abaixo foi transcrito manualmente a partir do manual —
+conferir o PDF original em caso de dúvida de detalhe visual (ex: variações
+do logo, texturas de fundo).
+
+### Logo
+
+- Nome da loja: **use autêntica** (minúsculo no logo), tagline "MODA
+  FEMININA".
+- Monograma: "UA" com um coraçãozinho embutido.
+- Versões: principal (monograma + nome + tagline), horizontal (monograma +
+  nome ao lado), e versão para fundos escuros (fundo marrom profundo).
+
+### Paleta de cores
+
+| Nome | Hex | Uso |
+|---|---|---|
+| Marrom Dourado | `#8A5D16` | Logo, destaques, botões principais, elementos de destaque |
+| Caramelo Elegante | `#A0783C` | Elementos secundários, ícones, detalhes, hover |
+| Bege Nude | `#D8C5A8` | Fundos, áreas suaves, componentes |
+| Off-White | `#F7F3EC` | Fundo principal, contraste leve |
+| Marrom Profundo | `#3B2A18` | Textos, ícones, rodapés, contraste |
+
+### Tipografia
+
+- Títulos e destaques: **Cormorant Garamond** (serifada).
+- Textos e informações: **Montserrat** (sans-serif).
+- Ambas são Google Fonts — decidir na Sprint 07 se serão importadas via
+  `@fontsource` (pacote npm) ou via link do Google Fonts no `index.html`
+  (apresentar esse trade-off antes de escolher, como de costume).
+
+### Estilo / conceito visual
+
+Elegante, feminino, sofisticado e minimalista. Espaço em branco generoso,
+tons neutros e quentes, detalhes em marrom dourado. Visual clean, moderno e
+atemporal, com foco na experiência de compra e na beleza dos produtos.
+Elementos gráficos de apoio: monograma, coraçãozinho, linha fina, moldura
+simples; texturas suaves (papel, tecido) em fundos quando fizer sentido.
+
+### Botões e componentes (referência visual, não funcional ainda)
+
+- Botão principal: fundo `#8A5D16`, texto claro.
+- Hover do botão principal: tom mais escuro de marrom.
+- Botão secundário: outline, sem preenchimento.
+- Card de produto: imagem, nome, preço, avaliação em estrelas, botão de
+  ação.
+- Ícones de referência no manual: busca, usuário, coração (favoritos),
+  sacola, menu.
+
+**Atenção de escopo:** o manual de marca mostra ícone de carrinho/sacola e
+avaliação por estrelas como exemplo de estilo visual — isso **não** significa
+que carrinho, favoritos ou avaliações entram no MVP. Esses recursos não
+estão nas Sprints 07/08 nem no MVP (ver seção 7 e seção 17 no topo do
+documento — carrinho/checkout são V4). Usar o manual só para cores,
+tipografia e estilo dos componentes que já estão no escopo (cards de
+produto, botões, layout).
