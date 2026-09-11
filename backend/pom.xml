@@ -84,6 +84,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Documentação da API (Swagger UI em /swagger-ui.html) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+
         <!-- Boot 4 moveu o autoconfigure do Flyway pra este starter; ele traz o flyway-core,
              mas não o suporte a Postgres, por isso a dependência extra abaixo -->
         <dependency>
