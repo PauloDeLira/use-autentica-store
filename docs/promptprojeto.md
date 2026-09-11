@@ -1558,8 +1558,9 @@ Adicionado em `frontend/`:
 
 **Número de WhatsApp:** por pedido do dono do projeto, usado o número
 pessoal dele **como placeholder de teste** (`VITE_WHATSAPP_NUMBER` no
-`.env` do frontend) — troca para o número real da loja é uma tarefa
-pendente e explícita para quando o MVP for pra deploy (ver seção 7).
+`.env` do frontend) — troca para o número real da loja era uma tarefa
+pendente para quando o MVP fosse pra deploy. Já foi trocado pelo número
+real da dona da loja (`55 87 9 9990-1960`) numa sessão posterior.
 
 **Testes:** funcionalidade validada manualmente via Playwright (Edge,
 desktop e mobile) contra a API real — seleção de variação, ajuste de
@@ -1695,11 +1696,9 @@ Seguir o mesmo padrão desta conversa: explicar objetivo e decisões técnicas,
 perguntar preferências quando houver mais de uma opção válida, e só então
 gerar código.
 
-Importante: **antes do deploy real do MVP**, trocar `VITE_WHATSAPP_NUMBER`
-(hoje o número pessoal do dono do projeto, usado só para teste) pelo
-número oficial da loja — ver nota da Sprint 08. Essa troca não depende da
-Sprint 10, pode ser feita a qualquer momento antes de publicar o site de
-verdade.
+`VITE_WHATSAPP_NUMBER` já foi atualizado para o número real da loja
+(a dona, via WhatsApp) — não é mais o número pessoal de teste do dono do
+projeto usado na Sprint 08.
 
 ## 8. Regras de processo combinadas ao longo das sessões
 
