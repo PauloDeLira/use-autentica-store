@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -158,6 +159,38 @@ class ProductAdminControllerTest {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.error").value("PRODUCT_HAS_VARIANTS"));
+    }
+
+    @Test
+    void listsAndShowsInactiveProductsForAdmin() throws Exception {
+        String token = adminToken();
+        String categoryId = createCategory(token);
+
+        MvcResult productResult = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Camiseta Oversized",
+                                "price", 89.90,
+                                "categoryId", categoryId
+                        ))))
+                .andReturn();
+        String productId = objectMapper.readTree(productResult.getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(patch("/api/admin/products/{id}/active", productId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("active", false))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/admin/products/{id}", productId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.active").value(false));
+
+        mockMvc.perform(get("/api/admin/products")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
     }
 
     @Test

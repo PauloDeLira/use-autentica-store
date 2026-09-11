@@ -44,32 +44,12 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductSummaryResponse> findActiveForCatalog(UUID categoryId, UUID sizeId, UUID colorId) {
-        List<Product> products = productRepository.findActiveForCatalog(categoryId, sizeId, colorId);
-        if (products.isEmpty()) {
-            return List.of();
-        }
+        return toSummaries(productRepository.findActiveForCatalog(categoryId, sizeId, colorId));
+    }
 
-        List<UUID> productIds = products.stream().map(Product::getId).toList();
-
-        Map<UUID, String> coverImageByProductId = productImageRepository
-                .findByProductIdInOrderByDisplayOrderAsc(productIds).stream()
-                .collect(Collectors.toMap(
-                        image -> image.getProduct().getId(),
-                        ProductImage::getUrl,
-                        (first, second) -> first));
-
-        Map<UUID, Boolean> availabilityByProductId = productVariantRepository
-                .findByProductIdInAndActiveTrue(productIds).stream()
-                .collect(Collectors.groupingBy(
-                        variant -> variant.getProduct().getId(),
-                        Collectors.reducing(false, ProductVariant::isAvailable, Boolean::logicalOr)));
-
-        return products.stream()
-                .map(product -> toSummary(
-                        product,
-                        coverImageByProductId.get(product.getId()),
-                        availabilityByProductId.getOrDefault(product.getId(), false)))
-                .toList();
+    @Transactional(readOnly = true)
+    public List<ProductSummaryResponse> findAllForAdmin() {
+        return toSummaries(productRepository.findAll());
     }
 
     @Transactional(readOnly = true)
@@ -79,6 +59,11 @@ public class ProductService {
             throw new ResourceNotFoundException("PRODUCT_NOT_FOUND", "Produto não encontrado");
         }
         return toResponse(product);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductResponse findByIdForAdmin(UUID id) {
+        return toResponse(findByIdOrThrow(id));
     }
 
     @Transactional
@@ -142,5 +127,33 @@ public class ProductService {
         return new ProductSummaryResponse(
                 product.getId(), product.getName(), product.getPrice(), product.isActive(),
                 product.getCategory().getName(), coverImageUrl, available);
+    }
+
+    private List<ProductSummaryResponse> toSummaries(List<Product> products) {
+        if (products.isEmpty()) {
+            return List.of();
+        }
+
+        List<UUID> productIds = products.stream().map(Product::getId).toList();
+
+        Map<UUID, String> coverImageByProductId = productImageRepository
+                .findByProductIdInOrderByDisplayOrderAsc(productIds).stream()
+                .collect(Collectors.toMap(
+                        image -> image.getProduct().getId(),
+                        ProductImage::getUrl,
+                        (first, second) -> first));
+
+        Map<UUID, Boolean> availabilityByProductId = productVariantRepository
+                .findByProductIdInAndActiveTrue(productIds).stream()
+                .collect(Collectors.groupingBy(
+                        variant -> variant.getProduct().getId(),
+                        Collectors.reducing(false, ProductVariant::isAvailable, Boolean::logicalOr)));
+
+        return products.stream()
+                .map(product -> toSummary(
+                        product,
+                        coverImageByProductId.get(product.getId()),
+                        availabilityByProductId.getOrDefault(product.getId(), false)))
+                .toList();
     }
 }

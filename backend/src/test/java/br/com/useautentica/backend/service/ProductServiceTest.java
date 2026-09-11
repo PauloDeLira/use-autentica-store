@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -100,5 +101,33 @@ class ProductServiceTest {
 
         assertThatThrownBy(() -> productService.delete(id))
                 .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void showsInactiveProductForAdmin() {
+        UUID id = UUID.randomUUID();
+        Product product = new Product("Camiseta", null, new BigDecimal("50.00"), new Category("Camisetas", null));
+        product.setActive(false);
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(productImageRepository.findByProductIdOrderByDisplayOrderAsc(any())).thenReturn(List.of());
+
+        ProductResponse response = productService.findByIdForAdmin(id);
+
+        assertThat(response.active()).isFalse();
+    }
+
+    @Test
+    void includesInactiveProductsInAdminListing() {
+        Product active = new Product("Camiseta", null, new BigDecimal("50.00"), new Category("Camisetas", null));
+        Product inactive = new Product("Vestido", null, new BigDecimal("80.00"), new Category("Vestidos", null));
+        inactive.setActive(false);
+        when(productRepository.findAll()).thenReturn(List.of(active, inactive));
+        when(productImageRepository.findByProductIdInOrderByDisplayOrderAsc(any())).thenReturn(List.of());
+        when(productVariantRepository.findByProductIdInAndActiveTrue(any())).thenReturn(List.of());
+
+        var summaries = productService.findAllForAdmin();
+
+        assertThat(summaries).hasSize(2);
+        assertThat(summaries).anySatisfy(summary -> assertThat(summary.active()).isFalse());
     }
 }

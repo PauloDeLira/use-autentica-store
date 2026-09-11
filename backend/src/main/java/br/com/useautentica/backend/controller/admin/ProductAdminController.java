@@ -3,10 +3,12 @@ package br.com.useautentica.backend.controller.admin;
 import br.com.useautentica.backend.dto.ActiveStatusRequest;
 import br.com.useautentica.backend.dto.product.ProductRequest;
 import br.com.useautentica.backend.dto.product.ProductResponse;
+import br.com.useautentica.backend.dto.product.ProductSummaryResponse;
 import br.com.useautentica.backend.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,6 +29,16 @@ public class ProductAdminController {
 
     public ProductAdminController(ProductService productService) {
         this.productService = productService;
+    }
+
+    @GetMapping
+    public List<ProductSummaryResponse> list() {
+        return productService.findAllForAdmin();
+    }
+
+    @GetMapping("/{id}")
+    public ProductResponse findById(@PathVariable UUID id) {
+        return productService.findByIdForAdmin(id);
     }
 
     @PostMapping
