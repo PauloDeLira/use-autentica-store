@@ -9,6 +9,12 @@
   color: var(--color-primary);
 }
 
+.heroLogo {
+  height: 180px;
+  width: auto;
+  margin: 0 auto;
+}
+
 .heroSubtitle {
   margin-top: var(--spacing-xs);
   font-family: var(--font-heading);

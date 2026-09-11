@@ -8,18 +8,16 @@
 }
 
 .logo {
-  font-family: var(--font-heading);
-  font-size: 1.75rem;
-  color: var(--color-primary);
+  display: flex;
+  align-items: center;
 }
 
-.tagline {
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-secondary);
-  display: block;
+.logoImage {
+  height: 64px;
+  width: auto;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  padding: 0.2rem;
 }
 
 .nav {

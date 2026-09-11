@@ -5,6 +5,7 @@ import { useAsync } from "../hooks/useAsync";
 import { LoadingIndicator } from "../components/common/LoadingIndicator";
 import { ErrorMessage } from "../components/common/ErrorMessage";
 import { ProductCard } from "../components/product/ProductCard";
+import logo from "../assets/use-autentica-logo.png";
 import styles from "./Home.module.css";
 
 const FEATURED_COUNT = 4;
@@ -18,7 +19,9 @@ export function Home() {
   return (
     <>
       <section className={styles.hero}>
-        <h1 className={styles.heroTitle}>use autêntica</h1>
+        <h1 className={styles.heroTitle}>
+          <img src={logo} alt="use autêntica — moda feminina" className={styles.heroLogo} />
+        </h1>
         <p className={styles.heroSubtitle}>Elegância em cada detalhe.</p>
         <Link to="/catalogo" className={styles.cta}>
           Ver catálogo
