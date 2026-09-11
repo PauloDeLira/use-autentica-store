@@ -1770,6 +1770,40 @@ pontos que já estavam sinalizados como "revisar antes de produção":
   produção, basta definir `CORS_ALLOWED_ORIGINS` com o domínio real do
   front-end — sem precisar recompilar.
 
+- **Upload de imagem validado pelo conteúdo real, não pelo Content-Type
+  declarado** — `ProductImageService` confiava em `file.getContentType()`,
+  valor enviado pelo próprio cliente no multipart e portanto forjável (um
+  arquivo malicioso podia se declarar `image/jpeg` e ser aceito). Agora a
+  validação lê os primeiros bytes do arquivo e reconhece a assinatura
+  real (magic numbers) de JPEG, PNG e WEBP; a extensão salva em disco
+  também passou a vir dessa detecção, não mais do nome original enviado
+  pelo cliente (fechando outra brecha: um arquivo podia se chamar
+  `foto.svg` e ainda assim ser salvo com essa extensão, mesmo que o
+  conteúdo real fosse outra coisa). `ImageStorageService.store` mudou de
+  assinatura pra receber a extensão já resolvida. Validado ao vivo contra
+  o container real: arquivo com bytes de PDF declarando `image/jpeg` foi
+  rejeitado (422); JPEG real com nome `fake_name.svg` foi aceito e salvo
+  como `.jpg`.
+
+- **Dois bugs de tratamento de erro encontrados durante essa validação
+  manual e corrigidos de imediato:**
+  - `DELETE` de produto com imagens cadastradas quebrava com 500 bruto
+    (`ConstraintViolationException` por FK), a mesma classe de problema já
+    resolvida antes para variações (`PRODUCT_HAS_VARIANTS`). Adicionado o
+    mesmo tipo de guarda em `ProductService.delete`, agora retornando 422
+    `PRODUCT_HAS_IMAGES` com mensagem orientando a remover as imagens
+    antes de excluir.
+  - Chamar um método HTTP não suportado numa rota existente (ex.: `DELETE`
+    em `/api/admin/categories/{id}`, que só aceita `PATCH .../active`,
+    já que categoria não tem exclusão definitiva) também caía no
+    catch-all genérico e virava 500 em vez do 405 correto. Adicionado um
+    `@ExceptionHandler(HttpRequestMethodNotSupportedException.class)`
+    dedicado em `GlobalExceptionHandler`.
+
+  Os dois só ficaram visíveis com clareza graças ao logging adicionado
+  antes (etapa de qualidade e documentação) — sem log, o 500 genérico não
+  dava nenhuma pista da causa real.
+
 ---
 
 ## 7. Próximo passo
