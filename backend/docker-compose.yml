@@ -34,8 +34,12 @@ services:
       JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES:-1440}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@useautentica.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      STORAGE_LOCAL_BASE_PATH: /app/uploads
     ports:
       - "8080:8080"
+    volumes:
+      - use-autentica-uploads-data:/app/uploads
 
 volumes:
   use-autentica-db-data:
+  use-autentica-uploads-data:

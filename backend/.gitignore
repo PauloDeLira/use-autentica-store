@@ -25,3 +25,6 @@ target/
 ### Ambiente ###
 .env
 *.log
+
+### Uploads locais (armazenamento de imagens em dev) ###
+uploads/

@@ -23,8 +23,18 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
 server:
   port: ${APP_PORT:8080}
+
+app:
+  storage:
+    local:
+      base-path: ${STORAGE_LOCAL_BASE_PATH:./uploads}
 
 jwt:
   secret: ${JWT_SECRET}
