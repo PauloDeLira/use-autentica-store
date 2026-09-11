@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchCategories } from "../../api/categories";
 import { createProduct, fetchAdminProduct, updateProduct } from "../../api/admin/products";
+import { uploadImage } from "../../api/admin/images";
 import { useAsync } from "../../hooks/useAsync";
 import { ApiError } from "../../api/client";
 import { LoadingIndicator } from "../../components/common/LoadingIndicator";
@@ -27,6 +28,7 @@ export function ProductForm() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [newProductImage, setNewProductImage] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -60,6 +62,13 @@ export function ProductForm() {
         setReloadKey((key) => key + 1);
       } else {
         const created = await createProduct(payload);
+        if (newProductImage) {
+          try {
+            await uploadImage(created.id, newProductImage);
+          } catch {
+            // produto já foi criado; a foto pode ser adicionada na tela de edição
+          }
+        }
         navigate(`/admin/produtos/${created.id}/editar`);
       }
     } catch (err) {
@@ -122,6 +131,17 @@ export function ProductForm() {
           </select>
         </label>
 
+        {!isEditing && (
+          <label className={styles.field}>
+            Foto (opcional)
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(event) => setNewProductImage(event.target.files?.[0] ?? null)}
+            />
+          </label>
+        )}
+
         <button type="submit" className={styles.submit} disabled={saving}>
           {saving ? "Salvando..." : isEditing ? "Salvar alterações" : "Criar produto"}
         </button>
@@ -150,7 +170,7 @@ export function ProductForm() {
 
       {!isEditing && (
         <p className={styles.hint}>
-          Salve o produto primeiro para poder cadastrar variações e imagens.
+          Salve o produto primeiro para poder cadastrar variações e mais imagens.
         </p>
       )}
     </div>
