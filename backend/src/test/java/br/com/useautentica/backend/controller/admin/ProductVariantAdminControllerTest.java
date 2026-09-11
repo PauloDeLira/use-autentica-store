@@ -1,5 +1,6 @@
 package br.com.useautentica.backend.controller.admin;
 
+import br.com.useautentica.backend.AbstractIntegrationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -22,8 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
-class ProductVariantAdminControllerTest {
+class ProductVariantAdminControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -143,6 +142,40 @@ class ProductVariantAdminControllerTest {
                                 "sizeId", sizeId, "colorId", anotherColorId, "stockQuantity", 3))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.stockQuantity").value(3));
+    }
+
+    @Test
+    void rejectsUpdateWithDuplicateSizeColorCombination() throws Exception {
+        String token = adminToken();
+        String productId = createProduct(token);
+        String sizeId = createSize(token);
+        String colorA = createColor(token);
+        String colorB = createColor(token);
+
+        // variação já existente com size+colorA
+        mockMvc.perform(post("/api/admin/products/{productId}/variants", productId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "sizeId", sizeId, "colorId", colorA, "stockQuantity", 5))))
+                .andExpect(status().isCreated());
+
+        // variação a ser editada, ainda com size+colorB
+        MvcResult toEditResult = mockMvc.perform(post("/api/admin/products/{productId}/variants", productId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "sizeId", sizeId, "colorId", colorB, "stockQuantity", 5))))
+                .andReturn();
+        String variantId = objectMapper.readTree(toEditResult.getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(put("/api/admin/products/{productId}/variants/{variantId}", productId, variantId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "sizeId", sizeId, "colorId", colorA, "stockQuantity", 5))))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("VARIANT_ALREADY_EXISTS"));
     }
 
     @Test

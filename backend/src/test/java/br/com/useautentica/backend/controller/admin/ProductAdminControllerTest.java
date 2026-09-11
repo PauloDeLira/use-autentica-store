@@ -1,5 +1,6 @@
 package br.com.useautentica.backend.controller.admin;
 
+import br.com.useautentica.backend.AbstractIntegrationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -18,13 +18,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
-class ProductAdminControllerTest {
+class ProductAdminControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -72,6 +72,72 @@ class ProductAdminControllerTest {
                         ))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.category.id").value(categoryId));
+    }
+
+    @Test
+    void updatesProduct() throws Exception {
+        String token = adminToken();
+        String categoryId = createCategory(token);
+
+        MvcResult createResult = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Camiseta Oversized",
+                                "price", 89.90,
+                                "categoryId", categoryId
+                        ))))
+                .andReturn();
+        String productId = objectMapper.readTree(createResult.getResponse().getContentAsString()).get("id").asText();
+        String otherCategoryId = createCategory(token);
+
+        mockMvc.perform(put("/api/admin/products/{id}", productId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Camiseta Oversized Editada",
+                                "price", 99.90,
+                                "categoryId", otherCategoryId
+                        ))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Camiseta Oversized Editada"))
+                .andExpect(jsonPath("$.price").value(99.90))
+                .andExpect(jsonPath("$.category.id").value(otherCategoryId));
+    }
+
+    @Test
+    void rejectsUpdateWithInactiveCategory() throws Exception {
+        String token = adminToken();
+        String categoryId = createCategory(token);
+        String inactiveCategoryId = createCategory(token);
+
+        MvcResult createResult = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Camiseta Oversized",
+                                "price", 89.90,
+                                "categoryId", categoryId
+                        ))))
+                .andReturn();
+        String productId = objectMapper.readTree(createResult.getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(patch("/api/admin/categories/{id}/active", inactiveCategoryId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("active", false))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(put("/api/admin/products/{id}", productId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Camiseta Oversized",
+                                "price", 89.90,
+                                "categoryId", inactiveCategoryId
+                        ))))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("CATEGORY_INACTIVE"));
     }
 
     @Test

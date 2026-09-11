@@ -1,5 +1,6 @@
 package br.com.useautentica.backend.controller.admin;
 
+import br.com.useautentica.backend.AbstractIntegrationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -16,13 +16,13 @@ import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
-class CategoryAdminControllerTest {
+class CategoryAdminControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -74,6 +74,54 @@ class CategoryAdminControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("name", name))))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("CATEGORY_NAME_ALREADY_EXISTS"));
+    }
+
+    @Test
+    void updatesCategory() throws Exception {
+        String token = adminToken();
+        MvcResult createResult = mockMvc.perform(post("/api/admin/categories")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", "Categoria " + UUID.randomUUID()))))
+                .andReturn();
+        String id = objectMapper.readTree(createResult.getResponse().getContentAsString()).get("id").asText();
+        String newName = "Categoria Editada " + UUID.randomUUID();
+
+        mockMvc.perform(put("/api/admin/categories/{id}", id)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", newName,
+                                "description", "Descrição atualizada"
+                        ))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(newName))
+                .andExpect(jsonPath("$.description").value("Descrição atualizada"));
+    }
+
+    @Test
+    void rejectsUpdateWithDuplicateName() throws Exception {
+        String token = adminToken();
+        String existingName = "Categoria " + UUID.randomUUID();
+        mockMvc.perform(post("/api/admin/categories")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", existingName))))
+                .andExpect(status().isCreated());
+
+        MvcResult createResult = mockMvc.perform(post("/api/admin/categories")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", "Categoria " + UUID.randomUUID()))))
+                .andReturn();
+        String id = objectMapper.readTree(createResult.getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(put("/api/admin/categories/{id}", id)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", existingName))))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.error").value("CATEGORY_NAME_ALREADY_EXISTS"));
     }
