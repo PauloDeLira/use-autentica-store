@@ -73,8 +73,12 @@
     padding-right: var(--spacing-md);
   }
 
+  /* Largura relativa ao espaço visível da faixa, deixando só uma pequena
+     lasca do próximo card à mostra — o suficiente pra sinalizar "arraste
+     pra ver mais" sem cortar o nome do produto no meio. */
   .item {
-    width: 200px;
+    width: calc(100% - 2.75rem);
+    max-width: 320px;
   }
 
   .arrow {
