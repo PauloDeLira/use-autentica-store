@@ -5,3 +5,14 @@
   color: var(--color-background);
   font-size: 0.85rem;
 }
+
+.adminLink {
+  display: inline-block;
+  margin-top: var(--spacing-xs);
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.adminLink:hover {
+  opacity: 1;
+}

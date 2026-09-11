@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import styles from "./AdminLayout.module.css";
 
@@ -14,7 +14,9 @@ export function AdminLayout() {
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <span className={styles.logo}>use autêntica</span>
+        <Link to="/" className={styles.logo}>
+          use autêntica
+        </Link>
         <nav className={styles.nav}>
           <NavLink to="/admin" end className={({ isActive }) => (isActive ? styles.navActive : undefined)}>
             Dashboard
@@ -28,6 +30,9 @@ export function AdminLayout() {
           <NavLink to="/admin/estoque" className={({ isActive }) => (isActive ? styles.navActive : undefined)}>
             Estoque
           </NavLink>
+          <Link to="/" className={styles.backToSiteLink}>
+            ← Voltar ao site
+          </Link>
         </nav>
         <button type="button" className={styles.logoutButton} onClick={handleLogout}>
           Sair ({session?.name})

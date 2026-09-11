@@ -43,6 +43,13 @@
   background-color: rgba(247, 243, 236, 0.15);
 }
 
+.backToSiteLink {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid rgba(247, 243, 236, 0.2);
+  font-size: 0.85rem;
+}
+
 .logoutButton {
   margin-top: auto;
   padding: 0.5rem 0.75rem;
