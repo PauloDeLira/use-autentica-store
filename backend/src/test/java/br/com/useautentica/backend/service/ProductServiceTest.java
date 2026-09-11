@@ -22,6 +22,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,5 +77,28 @@ class ProductServiceTest {
 
         assertThatThrownBy(() -> productService.findActiveByIdForCatalog(id))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void deletesProductWithoutVariants() {
+        UUID id = UUID.randomUUID();
+        Product product = new Product("Camiseta", null, new BigDecimal("50.00"), new Category("Camisetas", null));
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(productVariantRepository.existsByProductId(id)).thenReturn(false);
+
+        productService.delete(id);
+
+        verify(productRepository).delete(product);
+    }
+
+    @Test
+    void rejectsDeleteWhenProductHasVariants() {
+        UUID id = UUID.randomUUID();
+        Product product = new Product("Camiseta", null, new BigDecimal("50.00"), new Category("Camisetas", null));
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(productVariantRepository.existsByProductId(id)).thenReturn(true);
+
+        assertThatThrownBy(() -> productService.delete(id))
+                .isInstanceOf(BusinessException.class);
     }
 }

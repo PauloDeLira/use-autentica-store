@@ -9,6 +9,7 @@ import br.com.useautentica.backend.entity.Category;
 import br.com.useautentica.backend.entity.Product;
 import br.com.useautentica.backend.entity.ProductImage;
 import br.com.useautentica.backend.entity.ProductVariant;
+import br.com.useautentica.backend.exception.BusinessException;
 import br.com.useautentica.backend.exception.ResourceNotFoundException;
 import br.com.useautentica.backend.repository.ProductImageRepository;
 import br.com.useautentica.backend.repository.ProductRepository;
@@ -107,7 +108,13 @@ public class ProductService {
 
     @Transactional
     public void delete(UUID id) {
-        productRepository.delete(findByIdOrThrow(id));
+        Product product = findByIdOrThrow(id);
+        if (productVariantRepository.existsByProductId(id)) {
+            throw new BusinessException(
+                    "PRODUCT_HAS_VARIANTS",
+                    "Produto possui variações cadastradas e não pode ser excluído. Desative o produto em vez de excluí-lo.");
+        }
+        productRepository.delete(product);
     }
 
     public Product findByIdOrThrow(UUID id) {

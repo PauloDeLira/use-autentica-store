@@ -15,4 +15,6 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     List<ProductVariant> findByProductIdAndActiveTrue(UUID productId);
 
     List<ProductVariant> findByProductIdInAndActiveTrue(List<UUID> productIds);
+
+    boolean existsByProductId(UUID productId);
 }
