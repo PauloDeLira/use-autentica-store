@@ -1756,6 +1756,22 @@ do frontend limpos.
 
 ---
 
+### Preparação para deploy (em andamento, 2026-09-11)
+
+Antes de publicar o MVP, o usuário decidiu resolver primeiro os dois
+pontos que já estavam sinalizados como "revisar antes de produção":
+
+- **CORS configurável** — `CorsConfig` tinha as origens permitidas
+  hardcoded (`localhost:5173`/`localhost:3000`), o que impediria o
+  front-end publicado de acessar a API sem uma alteração de código. Agora
+  lê de `app.cors.allowed-origins` (env `CORS_ALLOWED_ORIGINS`, lista
+  separada por vírgula), com o mesmo default de dev quando a variável não
+  é definida. `docker-compose.yml` e `.env.example` atualizados. Em
+  produção, basta definir `CORS_ALLOWED_ORIGINS` com o domínio real do
+  front-end — sem precisar recompilar.
+
+---
+
 ## 7. Próximo passo
 
 **MVP concluído.** Todas as 10 sprints do plano original foram entregues
@@ -1771,10 +1787,9 @@ abaixo), a critério do dono do projeto: começar o roadmap V2 (pedidos,
 histórico, métricas de intenção de compra via cliques no WhatsApp — já
 esboçado na seção 10), ou simplesmente publicar o MVP como está.
 
-Antes de qualquer deploy real, revisitar os pontos já sinalizados como
-"revisar antes de produção": origens do CORS (`CorsConfig`), e considerar
-reforçar a validação de upload de imagem (hoje confia no `Content-Type`
-do cliente).
+Antes do deploy, restava reforçar a validação de upload de imagem (hoje
+confia no `Content-Type` enviado pelo cliente) — CORS já foi resolvido
+(ver "Preparação para deploy" acima).
 
 ## 8. Regras de processo combinadas ao longo das sessões
 
