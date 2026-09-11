@@ -57,3 +57,111 @@
   text-transform: uppercase;
   color: var(--color-muted);
 }
+
+.secondary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.panel {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.panelTitle {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 var(--spacing-sm);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.actionButton,
+.actionButtonGhost {
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.actionButton {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+.actionButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.actionButtonGhost {
+  border: 1px solid var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.actionButtonGhost:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-background);
+}
+
+.lowStockList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lowStockList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 0.88rem;
+}
+
+.lowStockList li:last-child {
+  border-bottom: none;
+}
+
+.lowStockMeta {
+  font-size: 0.72rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.emptyState {
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.panelLink {
+  display: inline-block;
+  margin-top: var(--spacing-sm);
+  font-size: 0.76rem;
+  color: var(--color-primary);
+  transition: color var(--transition);
+}
+
+.panelLink:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}

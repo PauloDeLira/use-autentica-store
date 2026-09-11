@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { fetchAdminProducts } from "../../api/admin/products";
 import { fetchInventory } from "../../api/admin/inventory";
 import { useAsync } from "../../hooks/useAsync";
@@ -26,6 +27,7 @@ export function Dashboard() {
   const itensDisponiveis = inventoryList
     .filter((item) => item.available)
     .reduce((sum, item) => sum + item.stockQuantity, 0);
+  const semEstoque = inventoryList.filter((item) => item.active && !item.available);
 
   return (
     <div>
@@ -50,6 +52,46 @@ export function Dashboard() {
         <div className={styles.card}>
           <div className={styles.value}>{itensDisponiveis}</div>
           <div className={styles.label}>Itens disponíveis</div>
+        </div>
+      </div>
+
+      <div className={styles.secondary}>
+        <div className={styles.panel}>
+          <h2 className={styles.panelTitle}>Ações rápidas</h2>
+          <div className={styles.actions}>
+            <Link to="/admin/produtos/novo" className={styles.actionButton}>
+              + Novo produto
+            </Link>
+            <Link to="/admin/estoque" className={styles.actionButtonGhost}>
+              Ver estoque
+            </Link>
+            <Link to="/admin/categorias" className={styles.actionButtonGhost}>
+              Gerenciar categorias
+            </Link>
+          </div>
+        </div>
+
+        <div className={styles.panel}>
+          <h2 className={styles.panelTitle}>Sem estoque</h2>
+          {semEstoque.length === 0 ? (
+            <p className={styles.emptyState}>Nenhuma variação sem estoque no momento.</p>
+          ) : (
+            <ul className={styles.lowStockList}>
+              {semEstoque.slice(0, 5).map((item) => (
+                <li key={item.id}>
+                  <span>{item.productName}</span>
+                  <span className={styles.lowStockMeta}>
+                    {item.size.name} · {item.color.name}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {semEstoque.length > 0 && (
+            <Link to="/admin/estoque" className={styles.panelLink}>
+              Ver estoque completo
+            </Link>
+          )}
         </div>
       </div>
     </div>
