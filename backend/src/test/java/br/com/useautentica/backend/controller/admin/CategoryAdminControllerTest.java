@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -142,6 +143,23 @@ class CategoryAdminControllerTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(Map.of("active", false))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.active").value(false));
+    }
+
+    @Test
+    void rejectsUnsupportedHttpMethodWithMethodNotAllowed() throws Exception {
+        String token = adminToken();
+        MvcResult createResult = mockMvc.perform(post("/api/admin/categories")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", "Categoria " + UUID.randomUUID()))))
+                .andReturn();
+        String id = objectMapper.readTree(createResult.getResponse().getContentAsString()).get("id").asText();
+
+        // Categorias não têm exclusão definitiva (só desativação via PATCH .../active)
+        mockMvc.perform(delete("/api/admin/categories/{id}", id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.error").value("METHOD_NOT_ALLOWED"));
     }
 
     @Test
