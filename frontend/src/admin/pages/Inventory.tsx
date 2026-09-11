@@ -11,7 +11,7 @@ const LOW_STOCK_THRESHOLD = 5;
 export function Inventory() {
   const [reloadKey, setReloadKey] = useState(0);
   const inventory = useAsync(() => fetchInventory(), [reloadKey]);
-  const [pendingValues, setPendingValues] = useState<Record<string, number>>({});
+  const [pendingValues, setPendingValues] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +22,7 @@ export function Inventory() {
     setSavingId(variantId);
     setError(null);
     try {
-      await updateStock(variantId, value);
+      await updateStock(variantId, Number(value) || 0);
       setPendingValues((prev) => {
         const next = { ...prev };
         delete next[variantId];
@@ -56,8 +56,9 @@ export function Inventory() {
           </thead>
           <tbody>
             {inventory.data.map((item) => {
-              const currentValue = pendingValues[item.id] ?? item.stockQuantity;
-              const isDirty = pendingValues[item.id] !== undefined && pendingValues[item.id] !== item.stockQuantity;
+              const currentValue = pendingValues[item.id] ?? String(item.stockQuantity);
+              const isDirty =
+                pendingValues[item.id] !== undefined && (Number(pendingValues[item.id]) || 0) !== item.stockQuantity;
 
               return (
                 <tr key={item.id}>
@@ -74,7 +75,7 @@ export function Inventory() {
                       className={styles.stockInput}
                       value={currentValue}
                       onChange={(event) =>
-                        setPendingValues((prev) => ({ ...prev, [item.id]: Number(event.target.value) }))
+                        setPendingValues((prev) => ({ ...prev, [item.id]: event.target.value }))
                       }
                     />
                     {isDirty && (
