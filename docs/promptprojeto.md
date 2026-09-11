@@ -1440,6 +1440,94 @@ banco e do volume de uploads ao final.
 
 ---
 
+### Sprint 07 — Frontend público ✅ Concluída e validada (2026-09-11)
+
+Criado o módulo `frontend/` (Vite + React 19 + TypeScript, antes vazio):
+
+```
+frontend/
+├── index.html                 # título "Use Autêntica", Google Fonts (Cormorant Garamond + Montserrat)
+├── .env                        # VITE_API_BASE_URL=http://localhost:8080 (sem segredo, commitado)
+├── .oxlintrc.json              # linter padrão do template Vite atual (oxlint, não ESLint)
+├── src/
+│   ├── main.tsx / App.tsx      # BrowserRouter + rotas (/, /catalogo, /produtos/:id, 404)
+│   ├── pages/                  # Home, Catalog, ProductDetail, NotFound (+ .module.css cada)
+│   ├── components/
+│   │   ├── layout/              # Header, Footer, Layout (Outlet)
+│   │   ├── product/              # ProductCard, ImageGallery, VariantList
+│   │   └── common/                # LoadingIndicator, ErrorMessage
+│   ├── api/                    # client.ts (fetch wrapper + ApiError), products/categories/sizes/colors.ts
+│   ├── types/                  # product, category, size, color, variant
+│   ├── hooks/useAsync.ts       # hook genérico de fetch com loading/error
+│   ├── utils/currency.ts       # formatPrice (Intl BRL)
+│   └── styles/variables.css    # paleta e tipografia da identidade visual (seção 9)
+```
+
+**Decisões técnicas (trade-offs apresentados e escolhidos nesta sessão):**
+- **Vite** (não Create React App, descontinuado) — HMR rápido, é o padrão atual;
+  o `CorsConfig` do backend já liberava `localhost:5173`.
+- **CSS Modules puro**, sem Tailwind — alinhado à stack original ("HTML, CSS"),
+  zero dependência nova.
+- **Fetch API nativa**, sem Axios — suficiente para os poucos endpoints públicos
+  do MVP, zero dependência nova.
+- **Google Fonts via `<link>`** no `index.html`, não `@fontsource` — zero
+  dependência npm.
+- Template do Vite atual gera **oxlint** por padrão (não mais ESLint/
+  `eslint.config.js`) — mantido como está por ser a escolha própria do time
+  do Vite e não exigir dependências extras; extensão do VS Code trocada de
+  ESLint para `oxc.oxc-vscode` para bater com a ferramenta real do projeto.
+- Cliente HTTP (`api/client.ts`) traduz o formato de erro padronizado do
+  backend (`ErrorResponse`) numa classe `ApiError` própria no frontend.
+
+**Lacuna de API descoberta durante a integração (resolvida nesta sessão,
+mexendo no backend fora do escopo original da sprint):** `GET /api/products`
+(`ProductSummaryResponse`) só trazia `id, name, price, active, categoryName`
+— sem imagem, disponibilidade de estoque ou tamanho/cor, o que impedia 3
+tarefas da sprint (card com foto, estado de indisponível na listagem, filtro
+por tamanho/cor). Corrigido no backend:
+- `ProductSummaryResponse` ganhou `coverImageUrl` (primeira imagem por
+  `displayOrder`, ou `null`) e `available` (true se existir ao menos uma
+  variação ativa com estoque > 0), calculados em lote (uma query extra para
+  todos os produtos da página, não uma por produto) em
+  `ProductService.findActiveForCatalog`.
+- `GET /api/products` passou a aceitar `categoryId`, `sizeId`, `colorId`
+  como query params opcionais, via nova query JPQL em `ProductRepository`
+  (`EXISTS` subquery contra `ProductVariant` para tamanho/cor, independentes
+  entre si — não exige que seja a mesma variação).
+- Filtro por categoria e ordenação por preço no Catálogo do frontend usam
+  esses parâmetros/campo já existentes; a ordenação em si continua sendo
+  feita no cliente (não precisa de suporte do backend).
+
+**Bug real encontrado e corrigido nesta sessão (não relacionado à lacuna
+acima):** `DELETE /api/admin/products/{id}` retornava 500 genérico quando o
+produto tinha qualquer variação (mesmo soft-deleted), porque a FK de
+`product_variants` bloqueava o hard delete — risco que já estava anotado na
+Sprint 04 ("reavaliar quando essas relações existirem"). Corrigido com uma
+checagem explícita em `ProductService.delete` (`ProductVariantRepository
+.existsByProductId`) lançando `BusinessException("PRODUCT_HAS_VARIANTS", ...)`
+→ 422, em vez de deixar a constraint do banco estourar como 500. A estratégia
+de exclusão continua sendo hard delete quando não há variação; produtos com
+variação devem ser desativados, não excluídos.
+
+**Testes:** 3 novos (2 unitários em `ProductServiceTest`, 1 de integração em
+`ProductAdminControllerTest` cobrindo o 422 de `PRODUCT_HAS_VARIANTS`) — 69
+testes passando no total, `BUILD SUCCESS` via container Maven.
+
+**Validação real:** backend rebuildado (`docker compose build backend`) e
+validado rodando; frontend rodado com `npm run dev` e testado de ponta a
+ponta com Playwright (Chromium headless e Edge, desktop 1280px e mobile
+390px) contra a API real — Home (categorias + destaques), Catálogo (filtros
+de categoria/tamanho/cor + ordenação, card com imagem real e badge
+"Indisponível", estado vazio), Detalhe do produto (galeria de imagens,
+lista de variações com disponibilidade) — sem erros de console, TypeScript
+e `oxlint` limpos. Dados de teste usados na validação foram desativados/
+removidos ao final (a limpeza completa do banco de dev — poluído por dados
+de teste acumulados de sprints anteriores, não só desta sessão, já que ainda
+não há Testcontainers isolando os testes — ficou pendente de aprovação
+manual do usuário para uma operação de `TRUNCATE`).
+
+---
+
 ## 6. Regras de processo que devem continuar sendo seguidas
 
 (vindas do documento de especificação original, seção 18 — reforçar sempre)
@@ -1464,24 +1552,32 @@ banco e do volume de uploads ao final.
 
 ## 7. Próximo passo
 
-**Sprint 07 — Frontend público**, ainda não iniciada. Objetivo do
-documento original: configurar React + TypeScript + React Router, criar
-layout, Home, catálogo, cards de produto, filtros, página de detalhes,
-integração com a API, estados de loading/erro/indisponível, layout
-responsivo. Entregável: "Cliente consegue navegar pelo catálogo e
-visualizar os produtos." É a primeira sprint de frontend — a pasta
-`frontend/` ainda não foi iniciada.
+**Sprint 08 — Compra via WhatsApp**, ainda não iniciada. Objetivo do
+documento original: seleção de tamanho/cor/quantidade na página de
+detalhes, validação de disponibilidade, geração da mensagem e do link do
+WhatsApp, botão de compra, tratamento de produto indisponível. Entregável:
+"Cliente consegue selecionar uma peça e iniciar uma conversa no WhatsApp
+com os dados do produto."
+
+A base já existe: `ProductDetail` (frontend) já busca e exibe as variações
+via `GET /api/products/{id}/variants` (`ProductVariantSummary`, com
+`sizeName`, `colorName`, `stockQuantity`, `available`) — falta tornar essa
+lista **selecionável** (hoje é só leitura), adicionar campo de quantidade,
+montar a mensagem e o link `https://wa.me/...` com o número da loja
+(precisa ser definido/perguntado — ainda não está no doc).
 
 Seguir o mesmo padrão desta conversa: explicar objetivo e decisões técnicas,
 perguntar preferências quando houver mais de uma opção válida, e só então
 gerar código.
 
-Importante: não implementar a compra via WhatsApp ainda (isso é Sprint 08)
-nem a área administrativa (Sprint 09) — só a experiência pública de
-navegação/catálogo.
+Importante: não implementar a área administrativa do frontend ainda (isso é
+Sprint 09) — só a seleção de variação e o botão de WhatsApp na página de
+detalhes já existente.
 
-Importante: não adiantar nada de Sprint 07+ (frontend público) nesta
-sprint — ver regra na seção 8 sobre não antecipar sprints futuras.
+Pendência conhecida, não bloqueante: banco de dev com dados de teste
+acumulados de várias sprints (ver nota de validação da Sprint 07) — limpar
+quando o usuário aprovar o `TRUNCATE`, ou deixar para a Sprint 10
+(Testcontainers vai isolar os testes do banco de dev definitivamente).
 
 ## 8. Regras de processo combinadas ao longo das sessões
 
