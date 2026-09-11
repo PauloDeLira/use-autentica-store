@@ -66,6 +66,21 @@
   transform-origin: left;
 }
 
+.instagramLink {
+  display: flex;
+  align-items: center;
+  color: var(--color-text);
+  transition: color var(--transition);
+}
+
+.instagramLink::after {
+  display: none;
+}
+
+.instagramLink:hover {
+  color: var(--color-primary);
+}
+
 @media (max-width: 600px) {
   .header {
     padding: var(--spacing-xs) var(--spacing-sm);

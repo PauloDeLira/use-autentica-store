@@ -20,6 +20,21 @@
   color: rgba(247, 243, 236, 0.7);
 }
 
+.instagramLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: var(--spacing-md);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: rgba(247, 243, 236, 0.85);
+  transition: color var(--transition);
+}
+
+.instagramLink:hover {
+  color: var(--color-surface);
+}
+
 .ornament {
   display: flex;
   align-items: center;
