@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { fetchProductById, fetchProductVariants } from "../api/products";
 import { useAsync } from "../hooks/useAsync";
@@ -6,11 +7,14 @@ import { LoadingIndicator } from "../components/common/LoadingIndicator";
 import { ErrorMessage } from "../components/common/ErrorMessage";
 import { ImageGallery } from "../components/product/ImageGallery";
 import { VariantList } from "../components/product/VariantList";
+import { PurchaseWhatsApp } from "../components/product/PurchaseWhatsApp";
 import { formatPrice } from "../utils/currency";
+import type { ProductVariantSummary } from "../types/variant";
 import styles from "./ProductDetail.module.css";
 
 export function ProductDetail() {
   const { id = "" } = useParams<{ id: string }>();
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariantSummary | null>(null);
 
   const product = useAsync(() => fetchProductById(id), [id]);
   const variants = useAsync(() => fetchProductVariants(id), [id]);
@@ -29,6 +33,7 @@ export function ProductDetail() {
   }
 
   const data = product.data!;
+  const hasAvailableVariant = variants.data?.some((variant) => variant.available) ?? false;
 
   return (
     <div className={styles.wrapper}>
@@ -43,7 +48,25 @@ export function ProductDetail() {
         <h2 className={styles.sectionTitle}>Tamanhos e cores disponíveis</h2>
         {variants.loading && <LoadingIndicator />}
         {variants.error && <ErrorMessage />}
-        {variants.data && <VariantList variants={variants.data} />}
+        {variants.data && !hasAvailableVariant && (
+          <p className="status-message">Produto indisponível no momento.</p>
+        )}
+        {variants.data && hasAvailableVariant && (
+          <VariantList
+            variants={variants.data}
+            selectedVariantId={selectedVariant?.id ?? null}
+            onSelect={setSelectedVariant}
+          />
+        )}
+
+        {selectedVariant && (
+          <PurchaseWhatsApp
+            key={selectedVariant.id}
+            productName={data.name}
+            price={data.price}
+            variant={selectedVariant}
+          />
+        )}
       </div>
     </div>
   );
