@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import logo from "../assets/use-autentica-logo.png";
 import styles from "./AdminLayout.module.css";
 
 export function AdminLayout() {
@@ -15,7 +16,7 @@ export function AdminLayout() {
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
         <Link to="/" className={styles.logo}>
-          use autêntica
+          <img src={logo} alt="use autêntica — moda feminina" className={styles.logoImage} />
         </Link>
         <nav className={styles.nav}>
           <NavLink to="/admin" end className={({ isActive }) => (isActive ? styles.navActive : undefined)}>

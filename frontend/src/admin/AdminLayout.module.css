@@ -14,9 +14,16 @@
 }
 
 .logo {
-  font-family: var(--font-heading);
-  font-size: 1.3rem;
+  display: block;
   margin-bottom: var(--spacing-lg);
+}
+
+.logoImage {
+  height: 72px;
+  width: auto;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  padding: 0.3rem;
 }
 
 .nav {
