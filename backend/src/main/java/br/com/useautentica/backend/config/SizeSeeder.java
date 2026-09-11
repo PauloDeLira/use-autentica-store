@@ -8,14 +8,15 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Cadastra os tamanhos básicos (PP a G) no primeiro boot, para não exigir
- * esse cadastro manual repetido a cada produto novo. GG/XG e outros ficam
- * a critério da administradora, via tela de variações.
+ * Cadastra os tamanhos básicos (PP a G, mais Único para peças sem variação de
+ * tamanho) no primeiro boot, para não exigir esse cadastro manual repetido a
+ * cada produto novo. GG/XG e outros ficam a critério da administradora, via
+ * tela de variações.
  */
 @Component
 public class SizeSeeder implements CommandLineRunner {
 
-    private static final List<String> DEFAULT_SIZES = List.of("PP", "P", "M", "G");
+    private static final List<String> DEFAULT_SIZES = List.of("PP", "P", "M", "G", "Único");
 
     private final SizeRepository sizeRepository;
 
