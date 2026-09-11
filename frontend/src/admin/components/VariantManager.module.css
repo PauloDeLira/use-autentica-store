@@ -116,10 +116,15 @@
 }
 
 .colorPicker {
-  padding: 0.2rem !important;
-  width: 3.2rem;
-  height: 2.4rem;
+  padding: 3px !important;
+  width: 3.4rem;
+  height: 2.6rem;
+  border-radius: var(--radius-sm) !important;
   cursor: pointer;
+}
+
+.colorPicker:hover {
+  border-color: var(--color-secondary);
 }
 
 .addButton {
@@ -180,9 +185,8 @@
 
   .table td {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-sm);
+    align-items: baseline;
+    gap: 0.6rem;
     padding: 0.25rem 0;
     border: none;
   }
@@ -190,6 +194,7 @@
   .table td::before {
     content: attr(data-label);
     flex-shrink: 0;
+    min-width: 5.5rem;
     font-size: 0.6rem;
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;

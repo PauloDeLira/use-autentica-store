@@ -3,6 +3,7 @@ import { deleteImage, uploadImage } from "../../api/admin/images";
 import { resolveAssetUrl, ApiError } from "../../api/client";
 import { ErrorMessage } from "../../components/common/ErrorMessage";
 import type { ProductImage } from "../../types/product";
+import { FileInput } from "./FileInput";
 import styles from "./ImageManager.module.css";
 
 interface ImageManagerProps {
@@ -60,15 +61,16 @@ export function ImageManager({ productId, images, onChanged }: ImageManagerProps
       </div>
 
       <form className={styles.form} onSubmit={handleUpload}>
-        <label className={styles.field}>
-          Arquivo
-          <input
-            type="file"
+        <div className={styles.field}>
+          <label htmlFor="product-image-file">Arquivo</label>
+          <FileInput
+            id="product-image-file"
             accept="image/jpeg,image/png,image/webp"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            value={file}
+            onChange={setFile}
             required
           />
-        </label>
+        </div>
 
         <label className={styles.field}>
           Texto alternativo

@@ -10,6 +10,7 @@ import { ErrorMessage } from "../../components/common/ErrorMessage";
 import { SuccessMessage } from "../../components/common/SuccessMessage";
 import { VariantManager } from "../components/VariantManager";
 import { ImageManager } from "../components/ImageManager";
+import { FileInput } from "../components/FileInput";
 import styles from "./ProductForm.module.css";
 
 export function ProductForm() {
@@ -137,14 +138,15 @@ export function ProductForm() {
         </label>
 
         {!isEditing && (
-          <label className={styles.field}>
-            Foto (opcional)
-            <input
-              type="file"
+          <div className={styles.field}>
+            <label htmlFor="new-product-photo">Foto (opcional)</label>
+            <FileInput
+              id="new-product-photo"
               accept="image/jpeg,image/png,image/webp"
-              onChange={(event) => setNewProductImage(event.target.files?.[0] ?? null)}
+              value={newProductImage}
+              onChange={setNewProductImage}
             />
-          </label>
+          </div>
         )}
 
         <button type="submit" className={styles.submit} disabled={saving}>
