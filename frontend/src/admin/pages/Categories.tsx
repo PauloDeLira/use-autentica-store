@@ -96,13 +96,13 @@ export function Categories() {
               <tbody>
                 {categories.data.map((category) => (
                   <tr key={category.id}>
-                    <td className={styles.categoryName}>{category.name}</td>
-                    <td>
+                    <td className={styles.categoryName} data-label="Nome">{category.name}</td>
+                    <td data-label="Status">
                       <span className={`${styles.badge} ${category.active ? "" : styles.badgeInactive}`}>
                         {category.active ? "Ativa" : "Inativa"}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Ações">
                       <div className={styles.actions}>
                         <button type="button" className={styles.linkButton} onClick={() => startEdit(category)}>
                           Editar

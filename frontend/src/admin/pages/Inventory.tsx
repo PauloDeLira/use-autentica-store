@@ -70,13 +70,13 @@ export function Inventory() {
 
                   return (
                     <tr key={item.id}>
-                      <td className={styles.productName}>{item.productName}</td>
-                      <td className={styles.sizeCell}>{item.size.name}</td>
-                      <td>
+                      <td className={styles.productName} data-label="Produto">{item.productName}</td>
+                      <td className={styles.sizeCell} data-label="Tamanho">{item.size.name}</td>
+                      <td data-label="Cor">
                         <span className={styles.swatch} style={{ backgroundColor: item.color.hexCode }} />
                         {item.color.name}
                       </td>
-                      <td>
+                      <td data-label="Estoque">
                         <div className={styles.stockCell}>
                           <input
                             type="number"
@@ -99,7 +99,7 @@ export function Inventory() {
                           )}
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Situação">
                         {item.stockQuantity === 0 || !item.active ? (
                           <span className={`${styles.badge} ${styles.badgeWarning}`}>Sem estoque</span>
                         ) : item.stockQuantity <= LOW_STOCK_THRESHOLD ? (

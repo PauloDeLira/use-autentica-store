@@ -81,15 +81,15 @@ export function ProductsList() {
                         <div className={styles.thumbPlaceholder}>UA</div>
                       )}
                     </td>
-                    <td className={styles.productName}>{product.name}</td>
-                    <td>{product.categoryName}</td>
-                    <td>{formatPrice(product.price)}</td>
-                    <td>
+                    <td className={styles.productName} data-label="Produto">{product.name}</td>
+                    <td data-label="Categoria">{product.categoryName}</td>
+                    <td data-label="Preço">{formatPrice(product.price)}</td>
+                    <td data-label="Status">
                       <span className={`${styles.badge} ${product.active ? "" : styles.badgeInactive}`}>
                         {product.active ? "Ativo" : "Inativo"}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Ações">
                       <div className={styles.actions}>
                         <Link to={`/admin/produtos/${product.id}/editar`} className={styles.linkButton}>
                           Editar

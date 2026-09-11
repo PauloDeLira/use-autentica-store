@@ -128,18 +128,18 @@ export function VariantManager({ productId }: VariantManagerProps) {
             )}
             {variants.map((variant) => (
               <tr key={variant.id}>
-                <td>{variant.size.name}</td>
-                <td>
+                <td data-label="Tamanho">{variant.size.name}</td>
+                <td data-label="Cor">
                   <span className={styles.swatch} style={{ backgroundColor: variant.color.hexCode }} />
                   {variant.color.name}
                 </td>
-                <td>{variant.stockQuantity}</td>
-                <td>
+                <td data-label="Estoque">{variant.stockQuantity}</td>
+                <td data-label="Status">
                   <span className={`${styles.badge} ${variant.active ? "" : styles.badgeInactive}`}>
                     {variant.active ? "Ativa" : "Inativa"}
                   </span>
                 </td>
-                <td>
+                <td data-label="">
                   {variant.active && (
                     <button type="button" className={styles.linkButton} onClick={() => handleRemove(variant.id)}>
                       Remover

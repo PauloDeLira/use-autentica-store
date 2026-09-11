@@ -154,3 +154,53 @@
   color: var(--color-muted);
   font-size: 0.92rem;
 }
+
+@media (max-width: 820px) {
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tr {
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding: 0.3rem 0;
+    border: none;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 0.6rem;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .productName {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .productName::before {
+    display: none;
+  }
+}

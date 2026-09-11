@@ -1,6 +1,8 @@
 .shell {
   display: flex;
   min-height: 100vh;
+  /* dvh acompanha a barra de endereço do Safari/Chrome no celular */
+  min-height: 100dvh;
   background-color: var(--color-surface-soft);
 }
 
@@ -130,19 +132,84 @@
 
   .sidebar {
     width: auto;
+    padding: var(--spacing-sm) var(--spacing-md);
+    padding-top: max(var(--spacing-sm), env(safe-area-inset-top));
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "logo user"
+      "nav nav";
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .logo {
+    grid-area: logo;
+    margin-bottom: 0;
+  }
+
+  .logoImage {
+    height: 44px;
+  }
+
+  .sidebarLabel {
+    display: none;
   }
 
   .nav {
+    grid-area: nav;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0.3rem;
+    padding-bottom: 0.2rem;
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav a {
+    white-space: nowrap;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.75rem;
+  }
+
+  .navActive {
+    border-left-color: transparent !important;
+    border-bottom-color: var(--color-surface);
   }
 
   .backToSiteLink {
     border-top: none;
-    padding-top: 0.6rem !important;
+    padding-top: 0.55rem !important;
+  }
+
+  .user {
+    grid-area: user;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .userRole {
+    display: none;
+  }
+
+  .logoutButton {
+    width: auto;
+    padding: 0.5rem 0.9rem;
   }
 
   .content {
     padding: var(--spacing-md);
+    padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
   }
 }

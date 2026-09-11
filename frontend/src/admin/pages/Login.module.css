@@ -1,9 +1,12 @@
 .wrapper {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-md);
+  padding-top: max(var(--spacing-md), env(safe-area-inset-top));
+  padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom));
   background-color: var(--color-surface);
   background-image: var(--texture-linen);
 }

@@ -1,5 +1,6 @@
 .footer {
   padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-lg);
+  padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
   text-align: center;
   background-color: var(--color-text);
   color: var(--color-background);
