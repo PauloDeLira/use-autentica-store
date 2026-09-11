@@ -8,6 +8,8 @@ public record ProductSummaryResponse(
         String name,
         BigDecimal price,
         boolean active,
-        String categoryName
+        String categoryName,
+        String coverImageUrl,
+        boolean available
 ) {
 }

@@ -8,14 +8,18 @@ import br.com.useautentica.backend.dto.productimage.ProductImageResponse;
 import br.com.useautentica.backend.entity.Category;
 import br.com.useautentica.backend.entity.Product;
 import br.com.useautentica.backend.entity.ProductImage;
+import br.com.useautentica.backend.entity.ProductVariant;
 import br.com.useautentica.backend.exception.ResourceNotFoundException;
 import br.com.useautentica.backend.repository.ProductImageRepository;
 import br.com.useautentica.backend.repository.ProductRepository;
+import br.com.useautentica.backend.repository.ProductVariantRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -23,21 +27,47 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final ProductImageRepository productImageRepository;
+    private final ProductVariantRepository productVariantRepository;
 
     public ProductService(
             ProductRepository productRepository,
             CategoryService categoryService,
-            ProductImageRepository productImageRepository
+            ProductImageRepository productImageRepository,
+            ProductVariantRepository productVariantRepository
     ) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productImageRepository = productImageRepository;
+        this.productVariantRepository = productVariantRepository;
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSummaryResponse> findActiveForCatalog() {
-        return productRepository.findByActiveTrue().stream()
-                .map(this::toSummary)
+    public List<ProductSummaryResponse> findActiveForCatalog(UUID categoryId, UUID sizeId, UUID colorId) {
+        List<Product> products = productRepository.findActiveForCatalog(categoryId, sizeId, colorId);
+        if (products.isEmpty()) {
+            return List.of();
+        }
+
+        List<UUID> productIds = products.stream().map(Product::getId).toList();
+
+        Map<UUID, String> coverImageByProductId = productImageRepository
+                .findByProductIdInOrderByDisplayOrderAsc(productIds).stream()
+                .collect(Collectors.toMap(
+                        image -> image.getProduct().getId(),
+                        ProductImage::getUrl,
+                        (first, second) -> first));
+
+        Map<UUID, Boolean> availabilityByProductId = productVariantRepository
+                .findByProductIdInAndActiveTrue(productIds).stream()
+                .collect(Collectors.groupingBy(
+                        variant -> variant.getProduct().getId(),
+                        Collectors.reducing(false, ProductVariant::isAvailable, Boolean::logicalOr)));
+
+        return products.stream()
+                .map(product -> toSummary(
+                        product,
+                        coverImageByProductId.get(product.getId()),
+                        availabilityByProductId.getOrDefault(product.getId(), false)))
                 .toList();
     }
 
@@ -101,8 +131,9 @@ public class ProductService {
         return new ProductImageResponse(image.getId(), image.getUrl(), image.getAltText(), image.getDisplayOrder());
     }
 
-    private ProductSummaryResponse toSummary(Product product) {
+    private ProductSummaryResponse toSummary(Product product, String coverImageUrl, boolean available) {
         return new ProductSummaryResponse(
-                product.getId(), product.getName(), product.getPrice(), product.isActive(), product.getCategory().getName());
+                product.getId(), product.getName(), product.getPrice(), product.isActive(),
+                product.getCategory().getName(), coverImageUrl, available);
     }
 }

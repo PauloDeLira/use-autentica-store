@@ -8,6 +8,7 @@ import br.com.useautentica.backend.exception.BusinessException;
 import br.com.useautentica.backend.exception.ResourceNotFoundException;
 import br.com.useautentica.backend.repository.ProductImageRepository;
 import br.com.useautentica.backend.repository.ProductRepository;
+import br.com.useautentica.backend.repository.ProductVariantRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +35,9 @@ class ProductServiceTest {
 
     @Mock
     private ProductImageRepository productImageRepository;
+
+    @Mock
+    private ProductVariantRepository productVariantRepository;
 
     @InjectMocks
     private ProductService productService;
