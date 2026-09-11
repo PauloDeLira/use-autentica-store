@@ -7,7 +7,7 @@ export function buildWhatsAppLink(
   productName: string,
   variant: ProductVariantSummary,
   quantity: number,
-  price: number,
+  unitPrice: number,
 ): string {
   const message = [
     "Olá! Tenho interesse no seguinte produto:",
@@ -16,7 +16,7 @@ export function buildWhatsAppLink(
     `Cor: ${variant.colorName}`,
     `Tamanho: ${variant.sizeName}`,
     `Quantidade: ${quantity}`,
-    `Valor: ${formatPrice(price)}`,
+    `Valor: ${formatPrice(unitPrice * quantity)}`,
     "",
     "Gostaria de verificar a disponibilidade.",
   ].join("\n");
