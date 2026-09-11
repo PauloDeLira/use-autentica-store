@@ -1742,7 +1742,7 @@ Testcontainers) e decisões técnicas relevantes. `frontend/README.md`
 também trocado do boilerplate padrão do Vite por um README específico do
 projeto. Documentação de arquitetura e decisões técnicas **não** ganhou
 um arquivo dedicado separado — decisão consciente de manter tudo em dois
-lugares (README pro resumo, `docs/promptprojeto.md` pro histórico
+lugares (README pro resumo, `docs/historico-do-projeto.md` pro histórico
 completo) em vez de um terceiro documento redundante.
 
 **Docker Compose** considerado completo pro escopo do MVP como está

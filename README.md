@@ -93,7 +93,7 @@ use-autentica-store/
 │       ├── types/             # tipos TS espelhando os DTOs do backend
 │       └── utils/              # WhatsApp, formatação de preço, etc.
 └── docs/
-    ├── promptprojeto.md     # histórico completo de decisões e status por sprint
+    ├── historico-do-projeto.md  # histórico completo de decisões e status por sprint
     ├── diagrama-er.md
     ├── requisitos.md
     └── identidade-visual/   # manual de marca (cores, tipografia, logo)
@@ -175,13 +175,13 @@ Documentação interativa da API (Swagger UI) em
   token de acesso único (~24h), sem refresh token.
 
 O histórico completo de decisões, trade-offs e status de cada etapa do
-desenvolvimento está em [`docs/promptprojeto.md`](docs/promptprojeto.md).
+desenvolvimento está em [`docs/historico-do-projeto.md`](docs/historico-do-projeto.md).
 
 ## Roadmap
 
 O MVP não inclui carrinho, checkout, gateway de pagamento ou gestão de
 pedidos — só catálogo + WhatsApp. Evoluções futuras estão descritas em
-detalhe em `docs/promptprojeto.md` (seção "Roadmap futuro" e "Backlog
+detalhe em `docs/historico-do-projeto.md` (seção "Roadmap futuro" e "Backlog
 pós-MVP"), incluindo:
 
 - **V2:** pedidos, histórico, dashboard mais completo, métricas de

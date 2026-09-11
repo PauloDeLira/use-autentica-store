@@ -48,4 +48,4 @@ src/
 Sem Axios (Fetch API nativa é suficiente para os endpoints do MVP), sem
 Tailwind (CSS Modules puro, seguindo a paleta em `styles/variables.css`),
 sem React Query/Redux (estado assíncrono simples via `useAsync`). Detalhes
-e trade-offs completos em `../docs/promptprojeto.md`.
+e trade-offs completos em `../docs/historico-do-projeto.md`.
