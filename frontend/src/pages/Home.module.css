@@ -91,16 +91,6 @@
   opacity: 0.95;
 }
 
-.heroVisualCaption {
-  margin-top: var(--spacing-sm);
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid rgba(247, 243, 236, 0.4);
-  font-size: 0.68rem;
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: rgba(247, 243, 236, 0.95);
-}
-
 /* ---------- Seções ---------- */
 
 .section {

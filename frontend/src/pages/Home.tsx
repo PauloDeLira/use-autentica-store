@@ -37,7 +37,6 @@ export function Home() {
         <div className={styles.heroVisual} aria-hidden="true">
           <div className={styles.heroVisualFrame}>
             <img src={logoLight} alt="" className={styles.heroVisualLogo} />
-            <span className={styles.heroVisualCaption}>Autêntica em cada escolha</span>
           </div>
         </div>
       </section>
