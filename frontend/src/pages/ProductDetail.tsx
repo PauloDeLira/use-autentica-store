@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchProductById, fetchProductVariants } from "../api/products";
 import { useAsync } from "../hooks/useAsync";
@@ -18,6 +18,16 @@ export function ProductDetail() {
 
   const product = useAsync(() => fetchProductById(id), [id]);
   const variants = useAsync(() => fetchProductVariants(id), [id]);
+  const availableVariants = variants.data?.filter((variant) => variant.available) ?? [];
+
+  // Com uma única opção disponível não há escolha real a fazer — seleciona
+  // automaticamente pra não exigir um clique extra antes de comprar.
+  useEffect(() => {
+    if (availableVariants.length === 1 && !selectedVariant) {
+      setSelectedVariant(availableVariants[0]);
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- so deve reagir a novos dados de variacao, nao a selectedVariant
+  }, [variants.data]);
 
   if (product.loading) {
     return <LoadingIndicator />;
@@ -29,7 +39,7 @@ export function ProductDetail() {
   }
 
   const data = product.data!;
-  const hasAvailableVariant = variants.data?.some((variant) => variant.available) ?? false;
+  const hasAvailableVariant = availableVariants.length > 0;
 
   return (
     <div className={styles.wrapper}>

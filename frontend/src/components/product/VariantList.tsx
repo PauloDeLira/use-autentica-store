@@ -28,6 +28,7 @@ export function VariantList({ variants, selectedVariantId, onSelect }: VariantLi
             <span className={`${styles.badge} ${variant.available ? "" : styles.badgeUnavailable}`}>
               {variant.available ? `${variant.stockQuantity} em estoque` : "Indisponível"}
             </span>
+            <span className={styles.radio} aria-hidden="true" />
           </button>
         </li>
       ))}
