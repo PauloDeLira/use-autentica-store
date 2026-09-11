@@ -12,14 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class ProductImageService {
-
-    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
 
     private final ProductImageRepository productImageRepository;
     private final ProductService productService;
@@ -49,14 +48,43 @@ public class ProductImageService {
         if (file.isEmpty()) {
             throw new BusinessException("IMAGE_FILE_REQUIRED", "O arquivo de imagem é obrigatório");
         }
-        if (!ALLOWED_CONTENT_TYPES.contains(file.getContentType())) {
+
+        // O Content-Type do multipart é declarado pelo cliente e pode ser forjado;
+        // a extensão real é decidida pela assinatura de bytes do próprio arquivo.
+        String extension = detectExtensionByMagicBytes(file);
+        if (extension == null) {
             throw new BusinessException("IMAGE_FORMAT_NOT_SUPPORTED", "Formato de imagem não suportado. Use JPEG, PNG ou WEBP");
         }
 
-        StoredFile stored = imageStorageService.store(file);
+        StoredFile stored = imageStorageService.store(file, extension);
         int displayOrder = productImageRepository.countByProductId(productId);
         ProductImage image = new ProductImage(product, stored.storageKey(), stored.url(), altText, displayOrder);
         return toResponse(productImageRepository.save(image));
+    }
+
+    private String detectExtensionByMagicBytes(MultipartFile file) {
+        byte[] header = new byte[12];
+        int read;
+        try (var in = file.getInputStream()) {
+            read = in.readNBytes(header, 0, header.length);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Falha ao ler o arquivo de imagem enviado", e);
+        }
+
+        if (read >= 3 && (header[0] & 0xFF) == 0xFF && (header[1] & 0xFF) == 0xD8 && (header[2] & 0xFF) == 0xFF) {
+            return ".jpg";
+        }
+        if (read >= 8
+                && (header[0] & 0xFF) == 0x89 && header[1] == 'P' && header[2] == 'N' && header[3] == 'G'
+                && header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A) {
+            return ".png";
+        }
+        if (read >= 12
+                && header[0] == 'R' && header[1] == 'I' && header[2] == 'F' && header[3] == 'F'
+                && header[8] == 'W' && header[9] == 'E' && header[10] == 'B' && header[11] == 'P') {
+            return ".webp";
+        }
+        return null;
     }
 
     @Transactional

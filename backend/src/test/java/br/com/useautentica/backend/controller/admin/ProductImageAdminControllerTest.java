@@ -26,6 +26,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ProductImageAdminControllerTest extends AbstractIntegrationTest {
 
+    // Assinatura real de JPEG (SOI + APP0), necessária porque a validação de
+    // upload agora inspeciona os bytes do arquivo, não o Content-Type declarado.
+    private static final byte[] JPEG_BYTES = {
+            (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0, 0, 0
+    };
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -69,7 +75,7 @@ class ProductImageAdminControllerTest extends AbstractIntegrationTest {
     void uploadsImageForProduct() throws Exception {
         String token = adminToken();
         String productId = createProduct(token);
-        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", new byte[]{1, 2, 3});
+        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", JPEG_BYTES);
 
         mockMvc.perform(multipart("/api/admin/products/{productId}/images", productId)
                         .file(file)
@@ -84,7 +90,21 @@ class ProductImageAdminControllerTest extends AbstractIntegrationTest {
     void rejectsUnsupportedFormat() throws Exception {
         String token = adminToken();
         String productId = createProduct(token);
-        MockMultipartFile file = new MockMultipartFile("file", "arquivo.pdf", "application/pdf", new byte[]{1});
+        MockMultipartFile file = new MockMultipartFile("file", "arquivo.pdf", "application/pdf", "%PDF-1.4".getBytes());
+
+        mockMvc.perform(multipart("/api/admin/products/{productId}/images", productId)
+                        .file(file)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("IMAGE_FORMAT_NOT_SUPPORTED"));
+    }
+
+    @Test
+    void rejectsFileWithSpoofedImageContentType() throws Exception {
+        String token = adminToken();
+        String productId = createProduct(token);
+        // Content-Type e nome declaram uma imagem, mas os bytes reais são de outro formato.
+        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", "%PDF-1.4".getBytes());
 
         mockMvc.perform(multipart("/api/admin/products/{productId}/images", productId)
                         .file(file)
@@ -97,7 +117,7 @@ class ProductImageAdminControllerTest extends AbstractIntegrationTest {
     void deletesImage() throws Exception {
         String token = adminToken();
         String productId = createProduct(token);
-        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", new byte[]{1, 2, 3});
+        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", JPEG_BYTES);
 
         MvcResult uploadResult = mockMvc.perform(multipart("/api/admin/products/{productId}/images", productId)
                         .file(file)
@@ -114,7 +134,7 @@ class ProductImageAdminControllerTest extends AbstractIntegrationTest {
     void includesUploadedImageInPublicProductDetail() throws Exception {
         String token = adminToken();
         String productId = createProduct(token);
-        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", new byte[]{1, 2, 3});
+        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", JPEG_BYTES);
 
         mockMvc.perform(multipart("/api/admin/products/{productId}/images", productId)
                         .file(file)
@@ -131,7 +151,7 @@ class ProductImageAdminControllerTest extends AbstractIntegrationTest {
 
     @Test
     void rejectsUploadWithoutToken() throws Exception {
-        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", new byte[]{1, 2, 3});
+        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", JPEG_BYTES);
         mockMvc.perform(multipart("/api/admin/products/{productId}/images", UUID.randomUUID())
                         .file(file))
                 .andExpect(status().isUnauthorized());

@@ -57,14 +57,18 @@ class ProductImageServiceTest {
         return product;
     }
 
+    // Assinatura real de JPEG (SOI + APP0): a validação agora inspeciona os
+    // bytes do arquivo, não o Content-Type declarado.
+    private static final byte[] JPEG_BYTES = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0, 0, 0};
+
     @Test
     void uploadsImageAndComputesDisplayOrder() {
         UUID productId = UUID.randomUUID();
-        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", new byte[]{1, 2, 3});
+        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", JPEG_BYTES);
 
         when(productService.findByIdOrThrow(productId)).thenReturn(product());
         when(productImageRepository.countByProductId(productId)).thenReturn(2);
-        when(imageStorageService.store(file)).thenReturn(new StoredFile("abc.jpg", "/uploads/abc.jpg"));
+        when(imageStorageService.store(file, ".jpg")).thenReturn(new StoredFile("abc.jpg", "/uploads/abc.jpg"));
         when(productImageRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         ProductImageResponse response = productImageService.upload(productId, file, "Foto da camiseta");

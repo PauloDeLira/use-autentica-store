@@ -20,10 +20,9 @@ public class LocalImageStorageService implements ImageStorageService {
     }
 
     @Override
-    public StoredFile store(MultipartFile file) {
+    public StoredFile store(MultipartFile file, String extension) {
         try {
             Files.createDirectories(basePath);
-            String extension = extensionOf(file.getOriginalFilename());
             String storageKey = UUID.randomUUID() + extension;
             file.transferTo(basePath.resolve(storageKey));
             return new StoredFile(storageKey, "/uploads/" + storageKey);
@@ -39,13 +38,5 @@ public class LocalImageStorageService implements ImageStorageService {
         } catch (IOException e) {
             throw new UncheckedIOException("Falha ao remover o arquivo de imagem", e);
         }
-    }
-
-    private String extensionOf(String originalFilename) {
-        if (originalFilename == null) {
-            return "";
-        }
-        int dotIndex = originalFilename.lastIndexOf('.');
-        return dotIndex >= 0 ? originalFilename.substring(dotIndex) : "";
     }
 }
