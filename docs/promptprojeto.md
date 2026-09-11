@@ -1528,6 +1528,48 @@ manual do usuário para uma operação de `TRUNCATE`).
 
 ---
 
+### Sprint 08 — Compra via WhatsApp ✅ Concluída e validada (2026-09-11)
+
+Adicionado em `frontend/`:
+- `utils/whatsapp.ts` — `buildWhatsAppLink(productName, variant, quantity, price)`
+  monta a mensagem (mesmo formato do exemplo da seção 7 do doc original) e
+  o link `https://wa.me/{numero}?text=...`. Número lido de
+  `VITE_WHATSAPP_NUMBER` (`.env`).
+- `components/product/VariantList.tsx` deixou de ser só leitura: cada linha
+  virou um `<button>` clicável (seleciona a variação), desabilitado quando
+  `available` é `false`, com destaque visual (borda) na variação
+  selecionada.
+- `components/product/PurchaseWhatsApp.tsx` (+ `.module.css`) — aparece só
+  depois de uma variação selecionada: campo de quantidade (`min=1`,
+  `max=stockQuantity` da variação, clampado no `onChange`) e botão "Comprar
+  pelo WhatsApp" (`<a target="_blank">` com o link montado).
+- `pages/ProductDetail.tsx` passou a guardar a variação selecionada em
+  estado local; se **nenhuma** variação do produto está disponível, mostra
+  "Produto indisponível no momento." em vez do seletor (tratamento de
+  produto indisponível pedido pela sprint).
+
+**Decisão técnica (trade-off apresentado e escolhido nesta sessão):**
+- **Seleção por variação única** (a linha já combina tamanho+cor+estoque),
+  em vez de dois `<select>` separados de tamanho e cor — o doc original
+  descreve o fluxo como "cliente seleciona a variação" (uma ação), a
+  estrutura de dados já vem pronta da Sprint 05
+  (`GET /api/products/{id}/variants`) e evita ter que calcular/desenhar
+  combinações tamanho×cor inválidas na tela.
+
+**Número de WhatsApp:** por pedido do dono do projeto, usado o número
+pessoal dele **como placeholder de teste** (`VITE_WHATSAPP_NUMBER` no
+`.env` do frontend) — troca para o número real da loja é uma tarefa
+pendente e explícita para quando o MVP for pra deploy (ver seção 7).
+
+**Testes:** funcionalidade validada manualmente via Playwright (Edge,
+desktop e mobile) contra a API real — seleção de variação, ajuste de
+quantidade, geração do link `wa.me` com o texto correto (conferido
+decodificando a URL), e o estado de "produto indisponível" quando nenhuma
+variação tem estoque. Sem testes automatizados novos (é lógica só de
+frontend, sem regra de negócio no backend) — `tsc` e `oxlint` limpos.
+
+---
+
 ## 6. Regras de processo que devem continuar sendo seguidas
 
 (vindas do documento de especificação original, seção 18 — reforçar sempre)
@@ -1552,27 +1594,27 @@ manual do usuário para uma operação de `TRUNCATE`).
 
 ## 7. Próximo passo
 
-**Sprint 08 — Compra via WhatsApp**, ainda não iniciada. Objetivo do
-documento original: seleção de tamanho/cor/quantidade na página de
-detalhes, validação de disponibilidade, geração da mensagem e do link do
-WhatsApp, botão de compra, tratamento de produto indisponível. Entregável:
-"Cliente consegue selecionar uma peça e iniciar uma conversa no WhatsApp
-com os dados do produto."
+**Sprint 09 — Frontend administrativo**, ainda não iniciada. Objetivo do
+documento original: tela de login, proteção de rotas, dashboard, listagem
+e formulário de produto, gerenciamento de categorias/variações/estoque/
+imagens, feedbacks de sucesso/erro. Entregável: "A proprietária consegue
+administrar a loja através da interface web."
 
-A base já existe: `ProductDetail` (frontend) já busca e exibe as variações
-via `GET /api/products/{id}/variants` (`ProductVariantSummary`, com
-`sizeName`, `colorName`, `stockQuantity`, `available`) — falta tornar essa
-lista **selecionável** (hoje é só leitura), adicionar campo de quantidade,
-montar a mensagem e o link `https://wa.me/...` com o número da loja
-(precisa ser definido/perguntado — ainda não está no doc).
+Toda a API administrativa já existe e está protegida por JWT/`ROLE_ADMIN`
+desde a Sprint 03 (login em `POST /api/auth/login`) — o frontend só
+precisa consumir o que já está pronto. É a sprint mais extensa de
+frontend até agora (várias telas), vale considerar dividir o trabalho em
+partes dentro da própria sessão (ex: login+proteção de rotas primeiro,
+depois produtos, depois categorias/estoque/imagens) em vez de tentar tudo
+de uma vez.
 
 Seguir o mesmo padrão desta conversa: explicar objetivo e decisões técnicas,
 perguntar preferências quando houver mais de uma opção válida, e só então
 gerar código.
 
-Importante: não implementar a área administrativa do frontend ainda (isso é
-Sprint 09) — só a seleção de variação e o botão de WhatsApp na página de
-detalhes já existente.
+Importante: **antes do deploy real do MVP**, trocar `VITE_WHATSAPP_NUMBER`
+(hoje o número pessoal do dono do projeto, usado só para teste) pelo
+número oficial da loja — ver nota da Sprint 08.
 
 Pendência conhecida, não bloqueante: banco de dev com dados de teste
 acumulados de várias sprints (ver nota de validação da Sprint 07) — limpar
