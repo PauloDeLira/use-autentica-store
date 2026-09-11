@@ -6,6 +6,7 @@ import br.com.useautentica.backend.entity.Category;
 import br.com.useautentica.backend.entity.Product;
 import br.com.useautentica.backend.exception.BusinessException;
 import br.com.useautentica.backend.exception.ResourceNotFoundException;
+import br.com.useautentica.backend.repository.ProductImageRepository;
 import br.com.useautentica.backend.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,9 @@ class ProductServiceTest {
 
     @Mock
     private CategoryService categoryService;
+
+    @Mock
+    private ProductImageRepository productImageRepository;
 
     @InjectMocks
     private ProductService productService;
