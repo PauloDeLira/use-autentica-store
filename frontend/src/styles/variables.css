@@ -1,0 +1,19 @@
+:root {
+  --color-primary: #8a5d16;
+  --color-secondary: #a0783c;
+  --color-surface: #d8c5a8;
+  --color-background: #f7f3ec;
+  --color-text: #3b2a18;
+
+  --font-heading: "Cormorant Garamond", serif;
+  --font-body: "Montserrat", sans-serif;
+
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2.5rem;
+  --spacing-xl: 4rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}

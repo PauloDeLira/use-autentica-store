@@ -1,0 +1,45 @@
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.main {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.thumbnails {
+  display: flex;
+  gap: var(--spacing-xs);
+  overflow-x: auto;
+}
+
+.thumbnail {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  flex-shrink: 0;
+}
+
+.thumbnailActive {
+  border-color: var(--color-primary);
+}
+
+.placeholder {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-secondary);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+}
