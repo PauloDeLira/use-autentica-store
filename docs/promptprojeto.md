@@ -1666,39 +1666,115 @@ final.
 
 ---
 
+### Sprint 10 — Qualidade e documentação ✅ Concluída e validada (2026-09-11)
+
+Antes de iniciar, foi feita uma auditoria real do projeto (não só por
+memória — leitura de código, execução de testes, checagem de config) pra
+levantar o que precisava entrar na sprint. Achados e o que foi feito:
+
+**Testcontainers** — `AbstractIntegrationTest` (nova classe base em
+`src/test/java/br/com/useautentica/backend/`) sobe um `PostgreSQLContainer`
+único ("padrão singleton", iniciado uma vez em bloco estático e
+reaproveitado por todas as ~21 classes de teste, sem restart por classe).
+Todas as classes que usavam `@SpringBootTest` passaram a estender essa
+base; `@ActiveProfiles("test")` saiu de cada arquivo e migrou pra lá
+(é herdado). O banco de dev **nunca mais é tocado pelos testes** — o
+problema de poluição documentado nas Sprints 07/08/09 está resolvido.
+
+Achado real no caminho: rodar Testcontainers de dentro do container Maven
+(sem Maven local instalado, mesmo padrão de todas as sprints anteriores)
+no Docker Desktop for Windows exige duas variáveis de ambiente —
+`TESTCONTAINERS_RYUK_DISABLED=true` (o container "Ryuk" de limpeza
+automática não é alcançável nesse cenário de Docker-fora-de-Docker) e
+`TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal` (sem isso, o driver
+tenta `172.17.0.1`, que não roteia pro Postgres efêmero nesse ambiente).
+Comando completo documentado no README raiz.
+
+Dependências adicionadas (versões geridas pelo próprio
+`spring-boot-starter-parent` 4.1.1, sem precisar fixar manualmente):
+`spring-boot-testcontainers`, `org.testcontainers:testcontainers-junit-jupiter`,
+`org.testcontainers:testcontainers-postgresql` (nomes de artefato com
+prefixo `testcontainers-` — mudou no Testcontainers 2.x).
+
+**Swagger/OpenAPI** — `springdoc-openapi-starter-webmvc-ui` 3.1.1 (a
+versão 2.x é pra Spring Boot 3; a série 3.x acompanha o Boot 4). UI em
+`/swagger-ui/index.html`, documento em `/v3/api-docs` (26 endpoints
+documentados automaticamente a partir dos controllers/DTOs existentes,
+sem anotação manual endpoint a endpoint — decisão consciente pra não
+overengenheirar uma sprint de "qualidade"). `OpenApiConfig` define só
+metadados (título/descrição) e o esquema de autenticação Bearer, o que já
+habilita o botão "Authorize" pra testar rotas `/api/admin/**` direto pela
+UI colando o token do login.
+
+**Testes faltantes** — os endpoints de edição (`PUT`) de produto,
+categoria, tamanho, cor e variação não tinham nenhum teste (só
+criar/excluir/estoque tinham). Adicionados 7 testes de integração cobrindo
+o caminho de sucesso e as validações de conflito de cada um
+(`updatesProduct`, `rejectsUpdateWithInactiveCategory`, `updatesCategory`,
+`rejectsUpdateWithDuplicateName`, `updatesSize`, `updatesColor`,
+`rejectsUpdateWithDuplicateSizeColorCombination`). 79 testes no total.
+
+**Tratamento de erros** — o projeto não tinha um único `Logger` em lugar
+nenhum; o catch-all genérico do `GlobalExceptionHandler` (`Exception.class`
+→ 500) engolia qualquer erro inesperado sem deixar rastro. Adicionado
+`log.error(...)` com a exceção completa nesse handler.
+
+**Revisão de arquitetura/código** — removido o pacote `mapper/` (só tinha
+um `.gitkeep`, nunca foi usado — o mapeamento DTO↔entidade sempre foi
+manual, inline nos services, consistente com a decisão de não usar
+MapStruct). CORS, `SecurityConfig` e JWT revisados e considerados
+adequados pro estágio atual (CORS já tinha comentário pra revisão antes
+de deploy real; sem alteração necessária agora, já que não existe origem
+de produção ainda). Upload de imagem valida só o `Content-Type` enviado
+pelo cliente (spoofável) — risco aceito por ora por ser endpoint
+admin-only, registrado aqui como limitação conhecida em vez de
+resolvido silenciosamente.
+
+**`.env.example`** do backend ganhou `STORAGE_LOCAL_BASE_PATH`, que
+faltava desde a Sprint 06.
+
+**README** — não existia um README na raiz do repositório (apesar do
+registro da Sprint 01 mencionar um "README inicial" como entregável, ele
+nunca chegou a ser commitado). Criado do zero, cobrindo objetivo,
+funcionalidades, tecnologias, arquitetura, estrutura do projeto, como
+rodar, como configurar, como testar (com o comando completo do
+Testcontainers) e decisões técnicas relevantes. `frontend/README.md`
+também trocado do boilerplate padrão do Vite por um README específico do
+projeto. Documentação de arquitetura e decisões técnicas **não** ganhou
+um arquivo dedicado separado — decisão consciente de manter tudo em dois
+lugares (README pro resumo, `docs/promptprojeto.md` pro histórico
+completo) em vez de um terceiro documento redundante.
+
+**Docker Compose** considerado completo pro escopo do MVP como está
+(Postgres + backend) — o frontend roda via `npm run dev` por decisão de
+projeto (SPA em modo dev), não foi containerizado.
+
+**Validação real:** 79 testes via Testcontainers, `BUILD SUCCESS`;
+`docker compose build backend` + restart validados; Swagger UI e
+`/v3/api-docs` conferidos batendo 26 paths documentados; `tsc`/`oxlint`
+do frontend limpos.
+
+---
+
 ## 7. Próximo passo
 
-**Sprint 10 — Qualidade e documentação**, ainda não iniciada (última
-sprint do MVP). Objetivo do documento original: revisar arquitetura e
-código, melhorar tratamento de erros e validações, adicionar testes
-faltantes, configurar Testcontainers, configurar Swagger/OpenAPI, melhorar
-o README, documentar arquitetura e decisões técnicas, Docker Compose
-completo, revisar segurança/CORS/autenticação/gerenciamento de secrets.
-Entregável: "MVP completo, documentado e reproduzível."
+**MVP concluído.** Todas as 10 sprints do plano original foram entregues
+e validadas. Os critérios de conclusão da seção 20 (topo deste documento)
+estão atendidos: login, CRUD de categorias/produtos/variações/estoque,
+catálogo público com filtro, compra via WhatsApp, API documentada, banco
+versionado via Flyway, testes das regras de negócio principais, projeto
+reproduzível via Docker Compose, README explicando como rodar.
 
-Itens que já sabemos que essa sprint precisa cobrir, levantados ao longo
-das sessões anteriores:
-- **Testcontainers** — vai finalmente isolar os testes do banco de dev
-  compartilhado. Hoje toda rodada de `mvn test` deixa categorias/produtos
-  de teste no Postgres de dev (ver notas de validação das Sprints 07/08/09);
-  isso para de acontecer assim que os testes passarem a subir seu próprio
-  Postgres efêmero.
-- **Swagger/OpenAPI** — a seção 15 do doc original pede documentação
-  completa dos endpoints; ainda não foi feita em nenhuma sprint anterior.
-- **Revisar o 500 → 422 do `PRODUCT_HAS_VARIANTS`** (Sprint 07) e outros
-  pontos de tratamento de erro — bom momento para uma revisão geral do
-  `GlobalExceptionHandler`.
-- **README** — hoje só existe o gerado na Sprint 01 (planejamento); precisa
-  refletir o estado real do projeto (como rodar backend+frontend juntos,
-  variáveis de ambiente de cada um, etc).
+Não há próxima sprint definida — os próximos passos possíveis são os do
+roadmap (seção 17, topo do documento) e do backlog pós-MVP (seção 10
+abaixo), a critério do dono do projeto: começar o roadmap V2 (pedidos,
+histórico, métricas de intenção de compra via cliques no WhatsApp — já
+esboçado na seção 10), ou simplesmente publicar o MVP como está.
 
-Seguir o mesmo padrão desta conversa: explicar objetivo e decisões técnicas,
-perguntar preferências quando houver mais de uma opção válida, e só então
-gerar código.
-
-`VITE_WHATSAPP_NUMBER` já foi atualizado para o número real da loja
-(a dona, via WhatsApp) — não é mais o número pessoal de teste do dono do
-projeto usado na Sprint 08.
+Antes de qualquer deploy real, revisitar os pontos já sinalizados como
+"revisar antes de produção": origens do CORS (`CorsConfig`), e considerar
+reforçar a validação de upload de imagem (hoje confia no `Content-Type`
+do cliente).
 
 ## 8. Regras de processo combinadas ao longo das sessões
 
@@ -1783,3 +1859,45 @@ estão nas Sprints 07/08 nem no MVP (ver seção 7 e seção 17 no topo do
 documento — carrinho/checkout são V4). Usar o manual só para cores,
 tipografia e estilo dos componentes que já estão no escopo (cards de
 produto, botões, layout).
+
+---
+
+## 10. Backlog pós-MVP (implementar só depois da Sprint 10)
+
+Itens já discutidos e aprovados em conceito, mas deliberadamente adiados
+para não atrasar o fechamento do MVP. Não implementar nada daqui antes da
+Sprint 10 estar concluída.
+
+### Métricas de "intenção de compra" no dashboard admin
+
+**Motivação:** o site não tem checkout próprio — a compra acontece no
+WhatsApp, fora do sistema. Isso significa que a Use Autêntica nunca terá
+dado de "venda concluída" dentro da aplicação. Cliques no botão de compra
+são o único sinal de interesse mensurável que existe.
+
+**O que entra:**
+- Card no Dashboard: quantos cliques o botão "Comprar pelo WhatsApp"
+  recebeu hoje / na semana.
+- Lista no Dashboard: produtos mais clicados (top N), pra saber o que
+  está chamando atenção mesmo sem a venda fechar pelo site.
+
+**Esboço técnico (a validar/ajustar quando for implementar):**
+- Nova entidade `ProductClickEvent` (`id`, `product` N:1, `createdAt`) +
+  migration Flyway.
+- Endpoint público (sem autenticação, quem clica é o cliente anônimo)
+  tipo `POST /api/products/{id}/whatsapp-click`, chamado via `onClick` no
+  botão do `PurchaseWhatsApp` — dispara e não bloqueia a navegação (o
+  `<a href>` já abre o WhatsApp normalmente; a chamada é fire-and-forget,
+  sem aguardar resposta nem impedir o clique em caso de falha de rede).
+- Endpoint admin de agregação (`GET /api/admin/dashboard/whatsapp-clicks`
+  ou similar) contando cliques por período e por produto.
+- Dois cards/blocos novos em `admin/pages/Dashboard.tsx`.
+
+**Trade-offs já levantados (revalidar antes de implementar):**
+- Clique não é venda — é só um proxy de interesse; aceitável e é o padrão
+  pra esse tipo de loja (comércio via WhatsApp sem checkout).
+- Sem deduplicação por sessão/IP inicialmente — um cliente que clica
+  duas vezes conta duas vezes. Suficiente para o MVP+1; revisar se virar
+  problema real.
+- Escopo real de sprint (entidade + migration + 2 endpoints + testes +
+  UI), não um ajuste rápido de dashboard.
