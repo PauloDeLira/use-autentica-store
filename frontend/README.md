@@ -1,32 +1,51 @@
-# React + TypeScript + Vite
+# Use Autêntica — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + TypeScript + Vite. Consome a API do backend (ver `../backend`).
 
-Currently, two official plugins are available:
+## Rodando localmente
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Abre em `http://localhost:5173`. Requer o backend rodando (ver README na
+raiz do repositório).
+
+## Variáveis de ambiente
+
+Definidas em `.env` (já commitado — nenhuma delas é segredo):
+
+| Variável | Descrição |
+|---|---|
+| `VITE_API_BASE_URL` | URL base da API (`http://localhost:8080` em dev) |
+| `VITE_WHATSAPP_NUMBER` | Número de WhatsApp da loja, formato `55DDDNNNNNNNNN` |
+
+## Estrutura
+
+```
+src/
+├── admin/         # painel administrativo: rotas, layout, páginas, componentes próprios
+├── api/            # cliente HTTP (client.ts) + uma função por endpoint, agrupadas por recurso
+├── auth/            # sessão do admin (contexto React + localStorage)
+├── components/       # componentes públicos reutilizáveis (layout, produto, comuns)
+├── hooks/              # useAsync — hook genérico de fetch com loading/error
+├── pages/               # páginas públicas: Home, Catalog, ProductDetail, NotFound
+├── styles/               # variables.css — tokens de design (cores, tipografia, espaçamento)
+├── types/                 # tipos TS espelhando os DTOs do backend
+└── utils/                  # formatação de preço, geração de link do WhatsApp
+```
+
+## Scripts
+
+- `npm run dev` — servidor de desenvolvimento (Vite + HMR)
+- `npm run build` — build de produção (`tsc -b && vite build`)
+- `npm run lint` — oxlint
+- `npm run preview` — serve o build de produção localmente
+
+## Decisões técnicas
+
+Sem Axios (Fetch API nativa é suficiente para os endpoints do MVP), sem
+Tailwind (CSS Modules puro, seguindo a paleta em `styles/variables.css`),
+sem React Query/Redux (estado assíncrono simples via `useAsync`). Detalhes
+e trade-offs completos em `../docs/promptprojeto.md`.
