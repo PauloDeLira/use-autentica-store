@@ -20,18 +20,26 @@
   color: rgba(247, 243, 236, 0.7);
 }
 
-.instagramLink {
+.contactList {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-md);
+}
+
+.contactLink {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  margin-top: var(--spacing-md);
   font-size: 0.78rem;
   letter-spacing: 0.02em;
   color: rgba(247, 243, 236, 0.85);
   transition: color var(--transition);
 }
 
-.instagramLink:hover {
+.contactLink:hover {
   color: var(--color-surface);
 }
 

@@ -66,18 +66,18 @@
   transform-origin: left;
 }
 
-.instagramLink {
+.iconLink {
   display: flex;
   align-items: center;
   color: var(--color-text);
   transition: color var(--transition);
 }
 
-.instagramLink::after {
+.iconLink::after {
   display: none;
 }
 
-.instagramLink:hover {
+.iconLink:hover {
   color: var(--color-primary);
 }
 
