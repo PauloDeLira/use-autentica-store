@@ -99,6 +99,11 @@ public class ProductService {
                     "PRODUCT_HAS_VARIANTS",
                     "Produto possui variações cadastradas e não pode ser excluído. Desative o produto em vez de excluí-lo.");
         }
+        if (productImageRepository.countByProductId(id) > 0) {
+            throw new BusinessException(
+                    "PRODUCT_HAS_IMAGES",
+                    "Produto possui imagens cadastradas e não pode ser excluído. Remova as imagens antes de excluir o produto.");
+        }
         productRepository.delete(product);
     }
 

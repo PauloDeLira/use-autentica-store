@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -225,6 +227,35 @@ class ProductAdminControllerTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.error").value("PRODUCT_HAS_VARIANTS"));
+    }
+
+    @Test
+    void rejectsDeleteWhenProductHasImages() throws Exception {
+        String token = adminToken();
+        String categoryId = createCategory(token);
+
+        MvcResult productResult = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Camiseta Oversized",
+                                "price", 89.90,
+                                "categoryId", categoryId
+                        ))))
+                .andReturn();
+        String productId = objectMapper.readTree(productResult.getResponse().getContentAsString()).get("id").asText();
+
+        byte[] jpegBytes = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0, 0, 0};
+        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", jpegBytes);
+        mockMvc.perform(multipart("/api/admin/products/{productId}/images", productId)
+                        .file(file)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(delete("/api/admin/products/{id}", productId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("PRODUCT_HAS_IMAGES"));
     }
 
     @Test
