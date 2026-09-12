@@ -1,4 +1,4 @@
-import { apiGet } from "./client";
+import { apiGet, apiPost } from "./client";
 import type { Product, ProductSummary } from "../types/product";
 import type { ProductVariantSummary } from "../types/variant";
 
@@ -24,4 +24,8 @@ export function fetchProductById(id: string): Promise<Product> {
 
 export function fetchProductVariants(id: string): Promise<ProductVariantSummary[]> {
   return apiGet<ProductVariantSummary[]>(`/api/products/${id}/variants`);
+}
+
+export function registerWhatsAppClick(id: string): Promise<void> {
+  return apiPost<void>(`/api/products/${id}/whatsapp-click`, undefined, { auth: false });
 }

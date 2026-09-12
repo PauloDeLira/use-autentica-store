@@ -119,13 +119,13 @@
   color: var(--color-background);
 }
 
-.lowStockList {
+.statList {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.lowStockList li {
+.statList li {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -135,11 +135,11 @@
   font-size: 0.88rem;
 }
 
-.lowStockList li:last-child {
+.statList li:last-child {
   border-bottom: none;
 }
 
-.lowStockMeta {
+.statMeta {
   font-size: 0.72rem;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
