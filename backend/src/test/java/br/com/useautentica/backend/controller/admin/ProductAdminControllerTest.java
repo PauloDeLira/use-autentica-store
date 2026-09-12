@@ -259,6 +259,32 @@ class ProductAdminControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void deletesProductWithWhatsAppClickHistory() throws Exception {
+        String token = adminToken();
+        String categoryId = createCategory(token);
+
+        MvcResult productResult = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Camiseta Oversized",
+                                "price", 89.90,
+                                "categoryId", categoryId
+                        ))))
+                .andReturn();
+        String productId = objectMapper.readTree(productResult.getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(post("/api/products/{id}/whatsapp-click", productId))
+                .andExpect(status().isNoContent());
+
+        // O historico de cliques nao deve impedir a exclusao do produto
+        // (product_click_events tem ON DELETE CASCADE).
+        mockMvc.perform(delete("/api/admin/products/{id}", productId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     void listsAndShowsInactiveProductsForAdmin() throws Exception {
         String token = adminToken();
         String categoryId = createCategory(token);

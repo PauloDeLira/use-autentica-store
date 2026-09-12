@@ -80,6 +80,7 @@ export function ProductDetail() {
         {selectedVariant && (
           <PurchaseWhatsApp
             key={selectedVariant.id}
+            productId={data.id}
             productName={data.name}
             price={data.price}
             variant={selectedVariant}

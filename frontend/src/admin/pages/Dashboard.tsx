@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { fetchAdminProducts } from "../../api/admin/products";
 import { fetchInventory } from "../../api/admin/inventory";
+import { fetchWhatsAppClickStats } from "../../api/admin/dashboard";
 import { useAsync } from "../../hooks/useAsync";
 import { LoadingIndicator } from "../../components/common/LoadingIndicator";
 import { ErrorMessage } from "../../components/common/ErrorMessage";
@@ -9,6 +10,10 @@ import styles from "./Dashboard.module.css";
 export function Dashboard() {
   const products = useAsync(() => fetchAdminProducts(), []);
   const inventory = useAsync(() => fetchInventory(), []);
+  // Metrica de intencao de compra: cliques no WhatsApp nao sao venda (o
+  // checkout acontece fora do site), mas e o unico sinal de interesse que
+  // da pra medir. Carrega a parte, sem travar o resto do dashboard.
+  const whatsappStats = useAsync(() => fetchWhatsAppClickStats(), []);
 
   if (products.loading || inventory.loading) {
     return <LoadingIndicator />;
@@ -28,6 +33,10 @@ export function Dashboard() {
     .filter((item) => item.available)
     .reduce((sum, item) => sum + item.stockQuantity, 0);
   const semEstoque = inventoryList.filter((item) => item.active && !item.available);
+
+  const clicksToday = whatsappStats.data?.clicksToday ?? 0;
+  const clicksThisWeek = whatsappStats.data?.clicksThisWeek ?? 0;
+  const topProducts = whatsappStats.data?.topProducts ?? [];
 
   return (
     <div>
@@ -53,6 +62,14 @@ export function Dashboard() {
           <div className={styles.value}>{itensDisponiveis}</div>
           <div className={styles.label}>Itens disponíveis</div>
         </div>
+        <div className={styles.card}>
+          <div className={styles.value}>{clicksToday}</div>
+          <div className={styles.label}>Cliques no WhatsApp hoje</div>
+        </div>
+        <div className={styles.card}>
+          <div className={styles.value}>{clicksThisWeek}</div>
+          <div className={styles.label}>Cliques no WhatsApp na semana</div>
+        </div>
       </div>
 
       <div className={styles.secondary}>
@@ -76,11 +93,11 @@ export function Dashboard() {
           {semEstoque.length === 0 ? (
             <p className={styles.emptyState}>Nenhuma variação sem estoque no momento.</p>
           ) : (
-            <ul className={styles.lowStockList}>
+            <ul className={styles.statList}>
               {semEstoque.slice(0, 5).map((item) => (
                 <li key={item.id}>
                   <span>{item.productName}</span>
-                  <span className={styles.lowStockMeta}>
+                  <span className={styles.statMeta}>
                     {item.size.name} · {item.color.name}
                   </span>
                 </li>
@@ -91,6 +108,22 @@ export function Dashboard() {
             <Link to="/admin/estoque" className={styles.panelLink}>
               Ver estoque completo
             </Link>
+          )}
+        </div>
+
+        <div className={styles.panel}>
+          <h2 className={styles.panelTitle}>Produtos mais clicados no WhatsApp</h2>
+          {topProducts.length === 0 ? (
+            <p className={styles.emptyState}>Ainda não há cliques registrados.</p>
+          ) : (
+            <ul className={styles.statList}>
+              {topProducts.map((item) => (
+                <li key={item.productId}>
+                  <span>{item.productName}</span>
+                  <span className={styles.statMeta}>{item.clicks} cliques</span>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </div>

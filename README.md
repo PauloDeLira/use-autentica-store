@@ -8,6 +8,8 @@ não há checkout nem gateway de pagamento no MVP.
 O projeto tem dois objetivos: resolver uma necessidade real da loja e
 servir como portfólio técnico (Java/Spring, React, PostgreSQL).
 
+**Site no ar:** https://use-autentica-store.vercel.app
+
 ## Funcionalidades
 
 **Loja (público)**

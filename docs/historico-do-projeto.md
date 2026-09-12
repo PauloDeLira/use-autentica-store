@@ -1979,36 +1979,43 @@ Itens já discutidos e aprovados em conceito, mas deliberadamente adiados
 para não atrasar o fechamento do MVP. Não implementar nada daqui antes da
 Sprint 10 estar concluída.
 
-### Métricas de "intenção de compra" no dashboard admin
+### Métricas de "intenção de compra" no dashboard admin ✅ Implementado (2026-09-12, branch `develop`)
 
 **Motivação:** o site não tem checkout próprio — a compra acontece no
 WhatsApp, fora do sistema. Isso significa que a Use Autêntica nunca terá
 dado de "venda concluída" dentro da aplicação. Cliques no botão de compra
 são o único sinal de interesse mensurável que existe.
 
-**O que entra:**
-- Card no Dashboard: quantos cliques o botão "Comprar pelo WhatsApp"
-  recebeu hoje / na semana.
-- Lista no Dashboard: produtos mais clicados (top N), pra saber o que
-  está chamando atenção mesmo sem a venda fechar pelo site.
+**O que foi implementado**, seguindo o esboço técnico original quase à
+risca:
+- Entidade `ProductClickEvent` (`id`, `product` N:1, `createdAt`) +
+  migration `V8__create_product_click_events.sql`.
+- `POST /api/products/{id}/whatsapp-click` (público, sem autenticação) —
+  chamado no `onClick` do link em `PurchaseWhatsApp`, fire-and-forget
+  (`.catch(() => {})`, nunca aguarda nem impede a abertura do WhatsApp).
+- `GET /api/admin/dashboard/whatsapp-clicks` (admin) — cliques de hoje,
+  da semana (janela rolante de 7 dias, não semana-calendário) e top 5
+  produtos mais clicados (contagem histórica total, não só da semana).
+- Dashboard ganhou 2 cards novos (hoje/semana) e um terceiro painel
+  ("Produtos mais clicados no WhatsApp"), ao lado dos já existentes
+  "Ações rápidas" e "Sem estoque".
 
-**Esboço técnico (a validar/ajustar quando for implementar):**
-- Nova entidade `ProductClickEvent` (`id`, `product` N:1, `createdAt`) +
-  migration Flyway.
-- Endpoint público (sem autenticação, quem clica é o cliente anônimo)
-  tipo `POST /api/products/{id}/whatsapp-click`, chamado via `onClick` no
-  botão do `PurchaseWhatsApp` — dispara e não bloqueia a navegação (o
-  `<a href>` já abre o WhatsApp normalmente; a chamada é fire-and-forget,
-  sem aguardar resposta nem impedir o clique em caso de falha de rede).
-- Endpoint admin de agregação (`GET /api/admin/dashboard/whatsapp-clicks`
-  ou similar) contando cliques por período e por produto.
-- Dois cards/blocos novos em `admin/pages/Dashboard.tsx`.
+**Bug real encontrado e corrigido durante a implementação:** a FK de
+`product_click_events` para `products` não tinha `ON DELETE CASCADE` —
+excluir um produto que já tivesse recebido algum clique quebraria com
+500 bruto, a mesma classe de problema já vista com variações e imagens
+(`PRODUCT_HAS_VARIANTS`/`PRODUCT_HAS_IMAGES`). Diferença aqui: clique é
+histórico de interesse, não conteúdo do produto, então a solução não é
+bloquear a exclusão (como nos outros dois casos) e sim deixar cascatear
+— não faz sentido reter contagem de cliques de um produto que nem existe
+mais. Testado explicitamente (`deletesProductWithWhatsAppClickHistory`).
 
-**Trade-offs já levantados (revalidar antes de implementar):**
+**Trade-offs mantidos como estavam no esboço original:**
 - Clique não é venda — é só um proxy de interesse; aceitável e é o padrão
   pra esse tipo de loja (comércio via WhatsApp sem checkout).
-- Sem deduplicação por sessão/IP inicialmente — um cliente que clica
-  duas vezes conta duas vezes. Suficiente para o MVP+1; revisar se virar
-  problema real.
-- Escopo real de sprint (entidade + migration + 2 endpoints + testes +
-  UI), não um ajuste rápido de dashboard.
+- Sem deduplicação por sessão/IP — um cliente que clica duas vezes conta
+  duas vezes. Revisar se virar problema real.
+
+Validado ao vivo (não só nos testes automatizados): clique real no botão
+via navegador confirmado disparando a chamada sem bloquear a abertura do
+WhatsApp, contagem refletindo corretamente no dashboard.
