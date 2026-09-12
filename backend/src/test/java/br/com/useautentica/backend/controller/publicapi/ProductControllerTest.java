@@ -117,4 +117,21 @@ class ProductControllerTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$[0].id").value(activeVariantId))
                 .andExpect(jsonPath("$.length()").value(1));
     }
+
+    @Test
+    void registersWhatsAppClickWithoutToken() throws Exception {
+        String token = adminToken();
+        String categoryId = createEntity(token, "/api/admin/categories", Map.of("name", "Categoria " + UUID.randomUUID()));
+        String productId = createEntity(token, "/api/admin/products", Map.of(
+                "name", "Camiseta Oversized", "price", 89.90, "categoryId", categoryId));
+
+        mockMvc.perform(post("/api/products/{id}/whatsapp-click", productId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void rejectsWhatsAppClickForNonexistentProduct() throws Exception {
+        mockMvc.perform(post("/api/products/{id}/whatsapp-click", UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
 }
