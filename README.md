@@ -9,11 +9,6 @@ O projeto tem dois objetivos: resolver uma necessidade real da loja e
 servir como portfólio técnico (Java/Spring, React, PostgreSQL).
 
 **Site no ar:** https://use-autentica-store.vercel.app
-**API:** https://use-autentica-store.onrender.com
-
-O backend roda em plano gratuito (Render) e "dorme" após períodos sem
-acesso — a primeira requisição depois de um tempo parado pode levar até
-cerca de um minuto pra responder.
 
 ## Funcionalidades
 
