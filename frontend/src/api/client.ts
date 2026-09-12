@@ -94,5 +94,10 @@ export function apiUpload<T>(path: string, formData: FormData): Promise<T> {
 }
 
 export function resolveAssetUrl(path: string): string {
+  // Em produção o Cloudinary já retorna uma URL absoluta; em dev o backend
+  // retorna um caminho relativo (/uploads/...) que precisa do host da API.
+  if (/^https?:\/\//.test(path)) {
+    return path;
+  }
   return `${API_BASE_URL}${path}`;
 }

@@ -91,6 +91,14 @@
             <version>3.1.1</version>
         </dependency>
 
+        <!-- Armazenamento de imagens em produção (disco local não é persistente
+             na maioria dos provedores free tier) -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http5</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
         <!-- Boot 4 moveu o autoconfigure do Flyway pra este starter; ele traz o flyway-core,
              mas não o suporte a Postgres, por isso a dependência extra abaixo -->
         <dependency>
