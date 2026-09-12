@@ -29,7 +29,9 @@ spring:
       max-request-size: 5MB
 
 server:
-  port: ${APP_PORT:8080}
+  # Render (e provedores parecidos) injetam a porta via PORT; localmente
+  # (docker compose, dev sem Docker) continua valendo APP_PORT.
+  port: ${PORT:${APP_PORT:8080}}
 
 app:
   storage:
