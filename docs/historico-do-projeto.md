@@ -1806,10 +1806,74 @@ pontos que já estavam sinalizados como "revisar antes de produção":
 
 ---
 
+### Deploy em produção (2026-09-12) ✅ No ar
+
+MVP publicado, 100% em serviços com tier gratuito:
+
+- **Banco:** [Neon](https://neon.tech) (Postgres serverless). Connection
+  string convertida pro formato JDBC (`DB_URL`/`DB_USER`/`DB_PASSWORD`
+  separados, `channel_binding` removido da URL por não ser reconhecido
+  pelo driver pgjdbc). As 7 migrations do Flyway rodaram limpas no
+  primeiro boot.
+- **Imagens:** migrado de disco local para **Cloudinary** (25GB grátis)
+  especificamente por causa do deploy — a maioria dos provedores free
+  tier (Render incluso) tem disco efêmero, que seria apagado a cada
+  redeploy. `ImageStorageService` ganhou uma segunda implementação,
+  `CloudinaryImageStorageService`, ativada via `@Profile("prod")`
+  (`LocalImageStorageService` passou a ser `@Profile("!prod")`,
+  continua valendo pra dev/test). `resolveAssetUrl` no frontend agora
+  aceita URLs absolutas (Cloudinary) além de relativas (storage local).
+- **Backend:** [Render](https://render.com), Web Service Docker, usando
+  o `Dockerfile` já existente sem alterações. Precisou de um ajuste real:
+  `server.port` passou a ler `${PORT:${APP_PORT:8080}}` — Render injeta
+  a porta via `PORT`, diferente da `APP_PORT` usada localmente; sem
+  isso o health check do provedor teria falhado.
+- **Frontend:** [Vercel](https://vercel.com), build estático do Vite
+  (`VITE_API_BASE_URL` apontando pro Render, `VITE_WHATSAPP_NUMBER`
+  mantido).
+- **CORS:** `CORS_ALLOWED_ORIGINS` no Render atualizado com o domínio
+  real do Vercel, mantendo os `localhost` de dev na lista.
+- **Credenciais de produção:** email do admin mantido
+  (`admin@useautentica.com`), senha e `JWT_SECRET` trocados por valores
+  novos, específicos de produção (nunca reaproveitar segredo de dev em
+  prod). Validado ao vivo: upload de imagem real (Render → Cloudinary,
+  confirmado via API administrativa do Cloudinary, não só o CDN — o CDN
+  cacheia com `immutable`, então continua respondendo 200 por um tempo
+  mesmo depois do arquivo já ter sido removido na origem) e exclusão,
+  de ponta a ponta contra o ambiente real antes de liberar pro uso.
+- **Banco de dados de produção zerado de propósito** — as categorias e
+  produtos de teste usados ao longo de todo o desenvolvimento (fotos
+  placeholder, nomes tipo "Vestido Caro") foram removidos direto via
+  SQL (a API não permite hard delete de produto/categoria com
+  variação/vínculo, por design). A dona da loja cadastra tudo do zero.
+  Tamanhos padrão (PP/P/M/G/Único) continuam seedados automaticamente.
+- **Cold start do Render free tier** — o serviço dorme após 15 min sem
+  tráfego; a primeira visita depois disso pode levar até ~1 min pra
+  responder. Mitigado com um workflow do GitHub Actions
+  (`.github/workflows/keep-alive.yml`) que faz ping em `/api/health` a
+  cada 10 minutos, dentro do limite de 750h/mês grátis do Render.
+  Como isso nunca é 100% garantido, `LoadingIndicator` também passou a
+  mostrar, depois de 4s de espera, uma mensagem explicando que o
+  servidor pode estar "acordando" — antes disso a tela só girava sem
+  explicação nenhuma, parecendo travada.
+- **CI** — `.github/workflows/ci.yml` roda a suíte de testes do backend
+  (Testcontainers funciona nativamente no runner do GitHub, sem os
+  contornos de Docker-em-Docker necessários localmente) e lint+build do
+  frontend a cada push/PR nas branches `main`/`develop`.
+- **Branch `develop`** criada a partir da `main` como preparação para o
+  fluxo de trabalho pós-deploy (a `main` passa a ser a branch que os
+  provedores observam pra redeploy automático) — a troca efetiva de
+  fluxo de trabalho para usar a `develop` no dia a dia ainda não
+  aconteceu, fica a critério do usuário quando retomar o desenvolvimento.
+
+URLs de produção: `https://use-autentica-store.onrender.com` (API) e
+`https://use-autentica-store.vercel.app` (loja).
+
 ## 7. Próximo passo
 
-**MVP concluído.** Todas as 10 sprints do plano original foram entregues
-e validadas. Os critérios de conclusão da seção 20 (topo deste documento)
+**MVP concluído e publicado.** Todas as 10 sprints do plano original
+foram entregues, validadas e o site está no ar (ver "Deploy em produção"
+acima). Os critérios de conclusão da seção 20 (topo deste documento)
 estão atendidos: login, CRUD de categorias/produtos/variações/estoque,
 catálogo público com filtro, compra via WhatsApp, API documentada, banco
 versionado via Flyway, testes das regras de negócio principais, projeto
@@ -1819,11 +1883,9 @@ Não há próxima sprint definida — os próximos passos possíveis são os do
 roadmap (seção 17, topo do documento) e do backlog pós-MVP (seção 10
 abaixo), a critério do dono do projeto: começar o roadmap V2 (pedidos,
 histórico, métricas de intenção de compra via cliques no WhatsApp — já
-esboçado na seção 10), ou simplesmente publicar o MVP como está.
-
-Antes do deploy, restava reforçar a validação de upload de imagem (hoje
-confia no `Content-Type` enviado pelo cliente) — CORS já foi resolvido
-(ver "Preparação para deploy" acima).
+esboçado na seção 10), passar a usar a branch `develop` no dia a dia
+(criada mas ainda não adotada, ver "Deploy em produção"), ou simplesmente
+deixar a loja rodando como está enquanto a dona cadastra os produtos reais.
 
 ## 8. Regras de processo combinadas ao longo das sessões
 
