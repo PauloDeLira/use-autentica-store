@@ -22,6 +22,15 @@
   color: var(--color-muted);
 }
 
+.slowHint {
+  max-width: 320px;
+  margin-top: var(--spacing-xs);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--color-muted);
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
