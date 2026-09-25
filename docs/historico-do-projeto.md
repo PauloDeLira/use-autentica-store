@@ -1904,10 +1904,17 @@ sem nenhum cliente acessando**. Investigação e correção:
   ocioso, liberando o banco para hibernar. O keep-alive do Render pode
   continuar normalmente, porque `/api/health` não consulta o banco —
   mantém-se o benefício de evitar o cold start de ~1 min do Render,
-  pagando no máximo ~1s de cold start do Neon na primeira consulta.
+  pagando o cold start do Neon só na primeira consulta após ociosidade.
 - **Validação** — localmente, após tráfego real nos endpoints de
   categorias e produtos havia 2 conexões JDBC abertas; 90s depois,
   0 conexões. Antes da mudança elas ficariam abertas indefinidamente.
+  Em produção, 10 min após o merge o compute suspendeu pela primeira vez
+  em 13 dias (`current_state: idle`), encerrando a sessão iniciada em
+  12/09. Medido na sequência: `GET /api/categories` com o banco suspenso
+  levou **3,1s**; a chamada seguinte, já com ele acordado, **0,55s** —
+  ou seja, o custo real de acordar o banco é de ~2,5s, não o ~1s que a
+  documentação do Neon sugere. Ainda assim é ~20x menor que o cold start
+  do Render, e só afeta a primeira visita após 5 min de inatividade.
 
 Lição que vale para qualquer serviço serverless com cobrança por tempo
 ativo: manter a aplicação "quente" de propósito pode manter o banco
