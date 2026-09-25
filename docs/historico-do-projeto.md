@@ -1849,8 +1849,11 @@ MVP publicado, 100% em serviços com tier gratuito:
   Tamanhos padrão (PP/P/M/G/Único) continuam seedados automaticamente.
 - **Cold start do Render free tier** — o serviço dorme após 15 min sem
   tráfego; a primeira visita depois disso pode levar até ~1 min pra
-  responder. Mitigado com um workflow do GitHub Actions
-  (`.github/workflows/keep-alive.yml`) que faz ping em `/api/health` a
+  responder. A primeira tentativa de mitigação foi um workflow do GitHub
+  Actions (`.github/workflows/keep-alive.yml`), abandonado porque o
+  gatilho `schedule` simplesmente não disparava (a documentação do
+  próprio GitHub trata execuções agendadas como "best-effort"). Foi
+  substituído por um job no **cron-job.org** batendo em `/api/health` a
   cada 10 minutos, dentro do limite de 750h/mês grátis do Render.
   Como isso nunca é 100% garantido, `LoadingIndicator` também passou a
   mostrar, depois de 4s de espera, uma mensagem explicando que o
@@ -1868,6 +1871,47 @@ MVP publicado, 100% em serviços com tier gratuito:
 
 URLs de produção: `https://use-autentica-store.onrender.com` (API) e
 `https://use-autentica-store.vercel.app` (loja).
+
+### Consumo indevido da cota de compute do Neon (2026-09-25) ✅ Corrigido
+
+O Neon avisou por e-mail que 80,3 das 100 CU-hours mensais do plano free
+já tinham sido consumidas — com a loja **sem nenhum produto cadastrado e
+sem nenhum cliente acessando**. Investigação e correção:
+
+- **Sintoma enganoso** — o gráfico de monitoramento do Neon parecia
+  mostrar só 3 picos isolados por dia, sugerindo uso esporádico. Era
+  leitura errada: aqueles picos eram autoscaling *acima* do mínimo, e a
+  linha contínua de RAM logo acima do zero era o compute ligado o tempo
+  todo. Os logs do Render também não ajudavam — apareciam vazios há 7
+  dias, o que na verdade é esperado, já que o Spring Boot não registra
+  requisições HTTP por padrão e o app só recebia pings de health.
+- **Evidência que fechou o diagnóstico** — via API do Neon, o endpoint
+  tinha `started_at: 2026-09-12T15:43:32Z` e `current_state: active`, ou
+  seja, ligado ininterruptamente desde o dia do deploy: 286,2h ativas de
+  315,6h decorridas (90,7%). O `pg_stat_activity` mostrou uma conexão
+  externa viva, `application_name = 'PostgreSQL JDBC Driver'` — o backend
+  no Render. Descartados por evidência: containers Docker locais
+  (parados havia 12 dias), tarefas `@Scheduled` (não existem), CI
+  (usa Testcontainers descartáveis) e branches extras (só existe uma).
+- **Causa raiz** — o ping do cron-job.org a cada 10 min impede o Render
+  de hibernar (limite de 15 min), então a JVM nunca morre; com a JVM
+  viva, o HikariCP mantinha conexão aberta com o Neon 24h por dia; e o
+  Neon **não suspende o compute enquanto houver conexão de cliente
+  aberta**, mesmo sem query nenhuma. Resultado: 0,25 CU (o mínimo)
+  queimando continuamente, ~180 CU-hours/mês contra as 100 disponíveis.
+- **Correção** — `minimum-idle: 0` e `idle-timeout: 60000` no HikariCP
+  (`application.yml`). O pool passa a devolver as conexões após 1 min
+  ocioso, liberando o banco para hibernar. O keep-alive do Render pode
+  continuar normalmente, porque `/api/health` não consulta o banco —
+  mantém-se o benefício de evitar o cold start de ~1 min do Render,
+  pagando no máximo ~1s de cold start do Neon na primeira consulta.
+- **Validação** — localmente, após tráfego real nos endpoints de
+  categorias e produtos havia 2 conexões JDBC abertas; 90s depois,
+  0 conexões. Antes da mudança elas ficariam abertas indefinidamente.
+
+Lição que vale para qualquer serviço serverless com cobrança por tempo
+ativo: manter a aplicação "quente" de propósito pode manter o banco
+acordado junto, sem nenhuma query sendo executada.
 
 ## 7. Próximo passo
 
