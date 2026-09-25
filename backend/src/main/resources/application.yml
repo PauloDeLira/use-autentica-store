@@ -8,6 +8,12 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/use_autentica}
     username: ${DB_USER:use_autentica}
     password: ${DB_PASSWORD:use_autentica}
+    hikari:
+      # O Neon não suspende o compute enquanto houver conexão aberta, mesmo
+      # ociosa — e o pool parado consumiria a cota mensal 24h por dia. Zerar
+      # o mínimo faz o pool devolver as conexões e deixar o banco hibernar.
+      minimum-idle: 0
+      idle-timeout: 60000
 
   jpa:
     open-in-view: false
