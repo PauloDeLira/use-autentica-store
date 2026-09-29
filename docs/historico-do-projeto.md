@@ -1904,10 +1904,17 @@ sem nenhum cliente acessando**. Investigação e correção:
   ocioso, liberando o banco para hibernar. O keep-alive do Render pode
   continuar normalmente, porque `/api/health` não consulta o banco —
   mantém-se o benefício de evitar o cold start de ~1 min do Render,
-  pagando no máximo ~1s de cold start do Neon na primeira consulta.
+  pagando o cold start do Neon só na primeira consulta após ociosidade.
 - **Validação** — localmente, após tráfego real nos endpoints de
   categorias e produtos havia 2 conexões JDBC abertas; 90s depois,
   0 conexões. Antes da mudança elas ficariam abertas indefinidamente.
+  Em produção, 10 min após o merge o compute suspendeu pela primeira vez
+  em 13 dias (`current_state: idle`), encerrando a sessão iniciada em
+  12/09. Medido na sequência: `GET /api/categories` com o banco suspenso
+  levou **3,1s**; a chamada seguinte, já com ele acordado, **0,55s** —
+  ou seja, o custo real de acordar o banco é de ~2,5s, não o ~1s que a
+  documentação do Neon sugere. Ainda assim é ~20x menor que o cold start
+  do Render, e só afeta a primeira visita após 5 min de inatividade.
 
 Lição que vale para qualquer serviço serverless com cobrança por tempo
 ativo: manter a aplicação "quente" de propósito pode manter o banco
@@ -2063,3 +2070,31 @@ mais. Testado explicitamente (`deletesProductWithWhatsAppClickHistory`).
 Validado ao vivo (não só nos testes automatizados): clique real no botão
 via navegador confirmado disparando a chamada sem bloquear a abertura do
 WhatsApp, contagem refletindo corretamente no dashboard.
+
+### Menu lateral (drawer) no admin mobile ✅ Implementado (2026-09-29, branch `develop`)
+
+No mobile o menu do admin era uma tira horizontal com `overflow-x: auto`
+e 5 itens. Num aparelho de ~390px os últimos ficavam fora da tela — tanto
+que existia um `mask-image` só pra sinalizar que dava pra arrastar. Menu
+que só aparece se a pessoa descobrir que precisa rolar é menu escondido.
+
+Trocado por um drawer que abre pelo ícone de menu na barra superior:
+
+- Todos os itens ficam visíveis de uma vez, com alvo de toque confortável.
+- A barra superior caiu de duas linhas (logo + usuário, depois a nav) para
+  uma faixa fina com ícone de menu e logo; o resto (nav, usuário, sair)
+  foi pro drawer. A altura recuperada vai pro conteúdo, que nas telas de
+  tabela do admin é onde faz falta.
+- Fecha ao navegar, ao tocar no fundo escurecido e com `Esc`; rolagem do
+  conteúdo travada enquanto aberto; respeita `prefers-reduced-motion`.
+- Desktop segue idêntico — a sidebar fixa não mudou.
+
+**Trade-off aceito:** drawer esconde a navegação atrás de um toque, o que
+normalmente reduz descoberta. Aqui não pesa, porque quem usa o admin é uma
+única pessoa que acessa todo dia — o custo de descoberta é pago uma vez.
+
+Validado no navegador em viewport de 390x844 com o backend real: drawer
+fora da tela quando fechado (`x: -280`) e alinhado quando aberto (`x: 0`),
+`aria-expanded` alternando, os 5 itens visíveis simultaneamente, fechamento
+confirmado nos três gestos, sidebar intacta no desktop, sem overflow
+horizontal e sem erro no console.
