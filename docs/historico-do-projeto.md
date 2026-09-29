@@ -2070,3 +2070,31 @@ mais. Testado explicitamente (`deletesProductWithWhatsAppClickHistory`).
 Validado ao vivo (não só nos testes automatizados): clique real no botão
 via navegador confirmado disparando a chamada sem bloquear a abertura do
 WhatsApp, contagem refletindo corretamente no dashboard.
+
+### Menu lateral (drawer) no admin mobile ✅ Implementado (2026-09-29, branch `develop`)
+
+No mobile o menu do admin era uma tira horizontal com `overflow-x: auto`
+e 5 itens. Num aparelho de ~390px os últimos ficavam fora da tela — tanto
+que existia um `mask-image` só pra sinalizar que dava pra arrastar. Menu
+que só aparece se a pessoa descobrir que precisa rolar é menu escondido.
+
+Trocado por um drawer que abre pelo ícone de menu na barra superior:
+
+- Todos os itens ficam visíveis de uma vez, com alvo de toque confortável.
+- A barra superior caiu de duas linhas (logo + usuário, depois a nav) para
+  uma faixa fina com ícone de menu e logo; o resto (nav, usuário, sair)
+  foi pro drawer. A altura recuperada vai pro conteúdo, que nas telas de
+  tabela do admin é onde faz falta.
+- Fecha ao navegar, ao tocar no fundo escurecido e com `Esc`; rolagem do
+  conteúdo travada enquanto aberto; respeita `prefers-reduced-motion`.
+- Desktop segue idêntico — a sidebar fixa não mudou.
+
+**Trade-off aceito:** drawer esconde a navegação atrás de um toque, o que
+normalmente reduz descoberta. Aqui não pesa, porque quem usa o admin é uma
+única pessoa que acessa todo dia — o custo de descoberta é pago uma vez.
+
+Validado no navegador em viewport de 390x844 com o backend real: drawer
+fora da tela quando fechado (`x: -280`) e alinhado quando aberto (`x: 0`),
+`aria-expanded` alternando, os 5 itens visíveis simultaneamente, fechamento
+confirmado nos três gestos, sidebar intacta no desktop, sem overflow
+horizontal e sem erro no console.
