@@ -5,6 +5,10 @@ import "./index.css";
 import { App } from "./App";
 import { AuthProvider } from "./auth/AuthContext";
 
+import { inject } from "@vercel/analytics";
+
+inject();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
