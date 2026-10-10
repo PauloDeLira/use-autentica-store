@@ -2098,3 +2098,44 @@ fora da tela quando fechado (`x: -280`) e alinhado quando aberto (`x: 0`),
 `aria-expanded` alternando, os 5 itens visíveis simultaneamente, fechamento
 confirmado nos três gestos, sidebar intacta no desktop, sem overflow
 horizontal e sem erro no console.
+
+### Correção: quantidade travada em 1 no celular ✅ Corrigido (2026-10-09, branch `develop`)
+
+Reportado pelo usuário com a loja já em produção (21 produtos cadastrados):
+no celular não dava para escolher a quantidade — o campo ficava preso em 1.
+
+**Causa raiz:** em `PurchaseWhatsApp`, o `onChange` aplicava o limite a cada
+tecla digitada:
+
+```js
+if (Number.isNaN(value)) return;
+setQuantity(Math.min(Math.max(value, 1), variant.stockQuantity));
+```
+
+Ao apagar o campo para digitar outro número, o valor vira `""` — e
+`Number("")` é `0`, não `NaN`, então a guarda não pegava esse caso.
+`Math.max(0, 1)` devolvia 1 e, como o input era controlado, o "1"
+reaparecia na hora. O campo nunca conseguia ficar vazio.
+
+Só aparecia no celular porque no desktop se usa as setinhas do
+`input type="number"`, que nunca passam pelo caminho do valor vazio —
+e no iOS/Android essas setinhas não existem, deixando a digitação
+(justamente o caminho quebrado) como única opção.
+
+**Correção:** botões − / + com o valor guardado como texto, permitindo o
+campo vazio durante a digitação. A quantidade válida é derivada do texto e
+o limite só é aplicado no `blur`, nunca no meio da digitação. Os botões se
+desabilitam no 1 e no limite do estoque, tornando a restrição visível em
+vez de corrigir o número por baixo dos panos. O campo segue digitável, com
+`inputMode="numeric"` para abrir o teclado numérico.
+
+**Validado** em viewport de 390x844 contra a API de produção: − desabilitado
+em 1; três cliques no + levam a 4; o campo **aceita ser apagado** (era o bug)
+e digitar 7 resulta em 7; digitar 99 normaliza para 10 (o estoque) ao sair do
+campo; + desabilitado no máximo; botões de 44x45px; a mensagem do WhatsApp
+reflete a quantidade e o valor total (R$ 36,00 com 1 unidade, R$ 108,00 com
+3); sem overflow horizontal e sem erro no console.
+
+**Lição:** aplicar limite a cada tecla em input controlado quebra a edição.
+O estado intermediário inválido (campo vazio) precisa ser permitido enquanto
+se digita; normalize no `blur`.

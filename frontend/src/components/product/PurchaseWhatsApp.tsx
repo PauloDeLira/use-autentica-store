@@ -12,11 +12,19 @@ interface PurchaseWhatsAppProps {
 }
 
 export function PurchaseWhatsApp({ productId, productName, price, variant }: PurchaseWhatsAppProps) {
-  const [quantity, setQuantity] = useState(1);
+  const max = variant.stockQuantity;
+  // Guardado como texto para o campo poder ficar vazio enquanto se digita;
+  // a quantidade válida é derivada daqui, nunca escrita de volta no meio da
+  // digitação — era isso que prendia o valor em 1 no celular.
+  const [draft, setDraft] = useState("1");
+  const quantity = Math.min(Math.max(Number(draft) || 1, 1), max);
 
-  function updateQuantity(value: number) {
-    if (Number.isNaN(value)) return;
-    setQuantity(Math.min(Math.max(value, 1), variant.stockQuantity));
+  function step(delta: number) {
+    setDraft(String(Math.min(Math.max(quantity + delta, 1), max)));
+  }
+
+  function handleChange(value: string) {
+    if (value === "" || /^\d+$/.test(value)) setDraft(value);
   }
 
   function handleClick() {
@@ -27,17 +35,41 @@ export function PurchaseWhatsApp({ productId, productName, price, variant }: Pur
 
   return (
     <div className={styles.purchase}>
-      <label className={styles.quantityLabel}>
-        Quantidade
-        <input
-          type="number"
-          min={1}
-          max={variant.stockQuantity}
-          value={quantity}
-          onChange={(event) => updateQuantity(Number(event.target.value))}
-          className={styles.quantityInput}
-        />
-      </label>
+      <div className={styles.quantityField}>
+        <label htmlFor="quantidade" className={styles.quantityLabel}>
+          Quantidade
+        </label>
+        <div className={styles.stepper}>
+          <button
+            type="button"
+            className={styles.stepperButton}
+            onClick={() => step(-1)}
+            disabled={quantity <= 1}
+            aria-label="Diminuir quantidade"
+          >
+            −
+          </button>
+          <input
+            id="quantidade"
+            type="text"
+            inputMode="numeric"
+            value={draft}
+            onChange={(event) => handleChange(event.target.value)}
+            onBlur={() => setDraft(String(quantity))}
+            aria-label={`Quantidade, máximo ${max}`}
+            className={styles.quantityInput}
+          />
+          <button
+            type="button"
+            className={styles.stepperButton}
+            onClick={() => step(1)}
+            disabled={quantity >= max}
+            aria-label="Aumentar quantidade"
+          >
+            +
+          </button>
+        </div>
+      </div>
 
       <a
         href={buildWhatsAppLink(productName, variant, quantity, price)}

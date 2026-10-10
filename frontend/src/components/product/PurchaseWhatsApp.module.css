@@ -8,29 +8,68 @@
   flex-wrap: wrap;
 }
 
-.quantityLabel {
+.quantityField {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+.quantityLabel {
   font-size: 0.64rem;
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--color-secondary);
 }
 
-.quantityInput {
-  width: 4.5rem;
-  padding: 0.8rem 0.65rem;
+.stepper {
+  display: flex;
+  align-items: stretch;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-sm);
-  font-family: var(--font-body);
-  font-size: 1rem;
-  color: var(--color-text);
   background-color: var(--color-background);
+  overflow: hidden;
 }
 
-.quantityInput:hover {
+.stepper:focus-within {
   border-color: var(--color-secondary);
+}
+
+.stepperButton {
+  width: 2.75rem;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: 1.15rem;
+  line-height: 1;
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.stepperButton:hover:not(:disabled) {
+  background-color: var(--color-surface-soft);
+}
+
+.stepperButton:disabled {
+  color: var(--color-line);
+}
+
+.quantityInput {
+  width: 3rem;
+  padding: 0.8rem 0.25rem;
+  border: none;
+  border-left: 1px solid var(--color-line);
+  border-right: 1px solid var(--color-line);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-align: center;
+  color: var(--color-text);
+  background-color: transparent;
+}
+
+.quantityInput:focus {
+  outline: none;
 }
 
 .whatsappButton {
